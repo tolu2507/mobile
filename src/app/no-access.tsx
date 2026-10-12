@@ -15,7 +15,7 @@ export default function NoAccess() {
         <EmptyState
           icon="desktop-outline"
           title="Use Nexus on the web"
-          message="School staff and admin accounts manage Nexus from the web dashboard. The mobile app is for students, parents and lesson teachers."
+          message="School staff and admin accounts manage Nexus from the web dashboard. The mobile app is for students, parents, lesson teachers and tuck-shop staff."
           action={
             <GameButton
               label="Sign out"

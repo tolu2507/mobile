@@ -13,6 +13,7 @@ const roleNames: Record<AppRole, { label: string; icon: keyof typeof Ionicons.gl
   STUDENT: { label: 'Student', icon: 'school-outline' },
   PARENT: { label: 'Parent', icon: 'people-outline' },
   TUTOR: { label: 'Lesson teacher', icon: 'easel-outline' },
+  TUCK_SHOP: { label: 'Tuck shop', icon: 'storefront-outline' },
 };
 
 export type ProfileRow = { icon: keyof typeof Ionicons.glyphMap; label: string; href?: Href; onPress?: () => void };

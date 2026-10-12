@@ -3,7 +3,7 @@
  * Keep in step with backend/src/** services.
  */
 
-export type Role = 'PLATFORM_ADMIN' | 'SCHOOL_OWNER' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'TUTOR';
+export type Role = 'PLATFORM_ADMIN' | 'SCHOOL_OWNER' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'TUTOR' | 'TUCK_SHOP';
 export type EducationLevel = 'NURSERY' | 'PRIMARY' | 'JUNIOR_SECONDARY' | 'SENIOR_SECONDARY';
 export type TeachingMode = 'IN_PERSON' | 'ONLINE' | 'BOTH';
 export type Kobo = string;
@@ -252,3 +252,10 @@ export type FeeInvoice = {
   status: 'UNPAID' | 'PART_PAID' | 'PAID';
   dueDate: string;
 };
+
+// ── Tuck shop ───────────────────────────────────────────────
+export type ShopStudent = { id: string; firstName: string; lastName: string; photoUrl: string | null; admissionNo: string | null; className: string | null; hasPin: boolean };
+export type ShopClass = { id: string; name: string };
+export type ShopReceipt = { id: string; studentName: string; amountKobo: string; balanceKobo: string; note: string | null; createdAt: string };
+export type ShopSale = { id: string; studentName: string; amountKobo: string; note: string | null; createdAt: string; refunded: boolean };
+export type ShopSales = { totalKobo: string; count: number; items: ShopSale[] };

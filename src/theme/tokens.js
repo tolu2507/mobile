@@ -22,6 +22,7 @@ const roles = {
   studentPrimary: { accent: palette.coral[500], accentSoft: palette.coral[100], bg: palette.sun[50], shadow: '#C63F1D', onAccent: palette.white },
   parent: { accent: palette.mint[600], accentSoft: palette.mint[50], bg: '#F3F8F6', shadow: palette.mint[800], onAccent: palette.white },
   tutor: { accent: palette.coral[500], accentSoft: palette.coral[100], bg: palette.coral[50], shadow: palette.coral[700], onAccent: palette.white },
+  tuckshop: { accent: palette.amber[500], accentSoft: palette.amber[50], bg: '#FBF7F1', shadow: palette.amber[700], onAccent: palette.white },
   staff: { accent: palette.violet[500], accentSoft: palette.violet[100], bg: palette.paper, shadow: palette.violet[700], onAccent: palette.white },
 };
 
