@@ -8,6 +8,7 @@ import { Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, GameB
 import { usePrivacy, useSetConsent } from '@/features/me/api';
 import { useChildren, useLatestReport } from '@/features/parent/api';
 import { ChildSwitcher, useCurrentChild } from '@/features/parent/components/ChildSwitcher';
+import { PendingChildren } from '@/features/parent/components/PendingChildren';
 import { friendlyError } from '@/lib/api';
 import { palette, roles } from '@/theme';
 
@@ -31,6 +32,8 @@ export default function ParentReports() {
           <Ionicons name="person-add-outline" size={21} color={palette.ink.DEFAULT} />
         </PressableScale>
       </View>
+
+      <PendingChildren />
 
       <ChildSwitcher />
 

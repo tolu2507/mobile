@@ -11,6 +11,7 @@ import type { Session } from '@/types/api';
 function resolveApiUrl() {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL.replace(/\/+$/, '');
   const host = Constants.expoConfig?.hostUri?.split(':')[0];
+  console.log({host})
   return host ? `http://${host}:3001` : 'http://localhost:3001';
 }
 
@@ -20,7 +21,7 @@ export const API_URL = resolveApiUrl();
 // Set on axios defaults so the plain axios calls (token refresh, sign out) get it too.
 axios.defaults.headers.common['ngrok-skip-browser-warning'] = '1';
 
-export const api = axios.create({ baseURL: API_URL, timeout: 20_000 });
+export const api = axios.create({ baseURL: API_URL, timeout: 20000 });
 
 api.interceptors.request.use((config) => {
   const token = useAuth.getState().accessToken;

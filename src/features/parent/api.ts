@@ -19,6 +19,21 @@ export type NewChild = {
   consentTutorMatching: boolean;
 };
 
+/** A child a school linked to this parent, waiting for the parent to say it's really theirs. */
+export type PendingChild = { studentId: string; firstName: string; lastName: string; className: string; schoolName: string | null; relationship: string; addedAt: string };
+
+export function usePendingChildren() {
+  return useQuery({ queryKey: ['parent', 'pending-children'], queryFn: async () => (await api.get<PendingChild[]>('/parent/children/pending')).data });
+}
+
+export function useRespondToChild() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ studentId, accept }: { studentId: string; accept: boolean }) => (await api.post(`/parent/children/pending/${studentId}/${accept ? 'accept' : 'decline'}`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent'] }),
+  });
+}
+
 export function useCreateChild() {
   const qc = useQueryClient();
   return useMutation({
