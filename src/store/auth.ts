@@ -20,7 +20,7 @@ type AuthState = {
   /** Forget the session locally (used when the server says the session is gone). */
   clear: () => void;
   /** Revoke the refresh token on the server, then forget the session. */
-  signOut: (apiUrl: string) => Promise<void>;
+  signOut: (apiUrl: string) => void;
 };
 
 export function mobileRoles(memberships: Membership[] = []): AppRole[] {
@@ -43,16 +43,19 @@ export const useAuth = create<AuthState>()(
       setUser: (user) => set({ user }),
       switchRole: (role) => set({ activeRole: role }),
       clear: () => set({ accessToken: null, refreshToken: null, user: null }),
-      signOut: async (apiUrl) => {
+      signOut: (apiUrl) => {
         const { refreshToken, accessToken } = get();
-        // Stop this phone getting the person's notifications before the session goes away.
         const pushToken = storage.getString(PUSH_TOKEN_KEY);
-        if (pushToken && accessToken) {
-          await axios.post(`${apiUrl}/me/push-tokens/remove`, { token: pushToken }, { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 5000 }).catch(() => {});
-          storage.remove(PUSH_TOKEN_KEY);
-        }
+        storage.remove(PUSH_TOKEN_KEY);
+        // Sign out on the phone straight away; tell the server in the background so slow Wi-Fi never blocks it.
         set({ accessToken: null, refreshToken: null, user: null });
-        if (refreshToken) await axios.post(`${apiUrl}/auth/logout`, { refreshToken }).catch(() => {});
+        void (async () => {
+          // Stop this phone getting the person's notifications. The access token stays valid for a few minutes.
+          if (pushToken && accessToken) {
+            await axios.post(`${apiUrl}/me/push-tokens/remove`, { token: pushToken }, { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 8000 }).catch(() => {});
+          }
+          if (refreshToken) await axios.post(`${apiUrl}/auth/logout`, { refreshToken }, { timeout: 8000 }).catch(() => {});
+        })();
       },
     }),
     {

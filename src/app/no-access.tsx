@@ -21,8 +21,8 @@ export default function NoAccess() {
               label="Sign out"
               variant="outline"
               className="mt-2 self-stretch"
-              onPress={async () => {
-                await signOut(API_URL);
+              onPress={() => {
+                signOut(API_URL);
                 router.replace('/welcome');
               }}
             />

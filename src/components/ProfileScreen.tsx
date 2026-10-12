@@ -30,8 +30,8 @@ export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar 
       {
         text: 'Sign out',
         style: 'destructive',
-        onPress: async () => {
-          await signOut(API_URL);
+        onPress: () => {
+          signOut(API_URL);
           queryClient.clear();
           router.replace('/welcome');
         },

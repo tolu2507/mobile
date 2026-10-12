@@ -9,12 +9,16 @@ import type { Session } from '@/types/api';
  * That makes it work on simulators and on real phones on the same Wi-Fi with no setup.
  */
 function resolveApiUrl() {
-  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL.replace(/\/+$/, '');
   const host = Constants.expoConfig?.hostUri?.split(':')[0];
   return host ? `http://${host}:3001` : 'http://localhost:3001';
 }
 
 export const API_URL = resolveApiUrl();
+
+// ngrok's free plan can answer with a "visit site?" HTML page instead of our JSON; this header skips it.
+// Set on axios defaults so the plain axios calls (token refresh, sign out) get it too.
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = '1';
 
 export const api = axios.create({ baseURL: API_URL, timeout: 20_000 });
 
