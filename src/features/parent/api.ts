@@ -47,6 +47,14 @@ export function useChildWallet(studentId?: string) {
   });
 }
 
+export function useSetDailyLimit(studentId?: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dailyLimitKobo: number | null) => (await api.put(`/parent/children/${studentId}/wallet/limit`, { dailyLimitKobo })).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent', 'wallet', studentId] }),
+  });
+}
+
 export function useChildInvoices(studentId?: string) {
   return useQuery({
     queryKey: ['parent', 'invoices', studentId],

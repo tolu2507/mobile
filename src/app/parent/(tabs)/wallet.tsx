@@ -6,7 +6,7 @@ import { Text, View } from 'react-native';
 import { NumberFlow } from '@/components/reacticx/molecules/number-flow';
 import { toast } from '@/components/reacticx/molecules/Toast';
 import { Body, Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, PressableScale, Screen, Title } from '@/components/ui';
-import { startTopup, useChildWallet, useChildren } from '@/features/parent/api';
+import { startTopup, useChildWallet, useChildren, useSetDailyLimit } from '@/features/parent/api';
 import { ChildSwitcher, useCurrentChild } from '@/features/parent/components/ChildSwitcher';
 import { SchoolFees } from '@/features/parent/components/SchoolFees';
 import { usePayment } from '@/features/payments';
@@ -61,8 +61,12 @@ export default function ParentWallet() {
               <Text className="font-display text-[38px] text-white">₦</Text>
               <NumberFlow value={Number(wallet.data.balanceKobo) / 100} fontSize={38} color="#FFFFFF" fontWeight="800" />
             </View>
-            <Text className="font-body text-[13px]" style={{ color: '#C6E9E0' }}>{child?.firstName} pays by showing the QR code in their app.</Text>
+            <Text className="font-body text-[13px]" style={{ color: '#C6E9E0' }}>
+              At the tuck shop {child?.firstName} gives their ID <Text className="font-body-extrabold text-white">{wallet.data.shopCode}</Text>, or pays from their own phone.
+            </Text>
           </View>
+
+          {child ? <DailyLimit studentId={child.id} firstName={child.firstName} limitKobo={wallet.data.dailyLimitKobo} spentKobo={wallet.data.spentTodayKobo} /> : null}
 
           <Card className="gap-4">
             <Title>Top up</Title>
@@ -111,5 +115,56 @@ export default function ParentWallet() {
         </>
       )}
     </Screen>
+  );
+}
+
+const LIMITS: (number | null)[] = [50_000, 100_000, 150_000, 200_000, 500_000, null]; // kobo; null = no limit
+
+/** The parent decides how much their child can spend at the tuck shop each day. */
+function DailyLimit({ studentId, firstName, limitKobo, spentKobo }: { studentId: string; firstName: string; limitKobo: string | null; spentKobo: string }) {
+  const [editing, setEditing] = useState(false);
+  const save = useSetDailyLimit(studentId);
+  const current = limitKobo === null ? null : Number(limitKobo);
+  return (
+    <Card className="gap-3">
+      <View className="flex-row items-center justify-between gap-2">
+        <View className="flex-1 gap-0.5">
+          <Label>Daily tuck-shop limit</Label>
+          <Caption>
+            {current === null ? `No limit. ${naira(spentKobo)} spent today.` : `${naira(current)} a day. ${naira(spentKobo)} spent today.`}
+          </Caption>
+        </View>
+        <PressableScale accessibilityLabel={editing ? 'Close' : 'Change daily limit'} onPress={() => setEditing((e) => !e)} style={{ paddingHorizontal: 12, minHeight: 40, justifyContent: 'center' }}>
+          <Text className="font-body-bold text-[15px]" style={{ color: theme.accent }}>{editing ? 'Close' : 'Change'}</Text>
+        </PressableScale>
+      </View>
+      {editing ? (
+        <View accessibilityRole="radiogroup" className="flex-row flex-wrap gap-2">
+          {LIMITS.map((l) => {
+            const active = l === current;
+            return (
+              <PressableScale
+                key={l ?? 'none'}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: active }}
+                disabled={save.isPending}
+                onPress={() =>
+                  save.mutate(l, {
+                    onSuccess: () => {
+                      setEditing(false);
+                      toast.success(l === null ? `${firstName} has no daily limit now` : `${firstName} can spend up to ${naira(l)} a day`);
+                    },
+                    onError: (e) => toast.error(friendlyError(e)),
+                  })
+                }
+                style={{ flexGrow: 1, minWidth: '30%', height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? theme.accentSoft : '#FFFFFF', borderWidth: 2, borderColor: active ? theme.accent : palette.ink[200] }}
+              >
+                <Text style={{ color: active ? palette.mint[800] : palette.ink.DEFAULT }} className="font-body-bold text-[15px]">{l === null ? 'No limit' : naira(l)}</Text>
+              </PressableScale>
+            );
+          })}
+        </View>
+      ) : null}
+    </Card>
   );
 }

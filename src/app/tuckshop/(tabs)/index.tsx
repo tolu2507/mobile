@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar, Caption, CardListSkeleton, EmptyState, ErrorState, Label, Pill, PressableScale, Screen, TextField } from '@/components/ui';
-import { useShopClasses, useShopStudents, useTodaysSales } from '@/features/tuckshop/api';
+import { Avatar, Caption, Card, CardListSkeleton, EmptyState, ErrorState, GameButton, Label, Pill, PressableScale, Screen, TextField, Title } from '@/components/ui';
+import { lookupStudent, useShopClasses, useShopStudents, useTodaysSales } from '@/features/tuckshop/api';
+import { friendlyError } from '@/lib/api';
 import { initials, naira } from '@/lib/format';
 import { useAuth } from '@/store/auth';
 import { palette, roles } from '@/theme';
@@ -13,7 +14,7 @@ import type { ShopStudent } from '@/types/api';
 
 const theme = roles.tuckshop;
 
-/** The counter: find the child in front of you, then start their sale. */
+/** The counter: type the ID on the child's slip (or search their name), then start their sale. */
 export default function Counter() {
   const user = useAuth((s) => s.user);
   const school = user?.memberships.find((m) => m.role === 'TUCK_SHOP')?.schoolName;
@@ -38,6 +39,9 @@ export default function Counter() {
           <Text accessibilityRole="header" className="font-display text-[30px] leading-[34px] text-white">
             Who’s buying?
           </Text>
+          <Text className="font-body text-[14px]" style={{ color: '#FFE4C7' }}>
+            Children paying from their own phone show up under Today.
+          </Text>
           <PressableScale
             accessibilityLabel="Today's sales"
             onPress={() => router.push('/tuckshop/sales')}
@@ -46,7 +50,7 @@ export default function Counter() {
             <Ionicons name="cash-outline" size={22} color={palette.white} />
             <View style={{ flex: 1 }}>
               <Text className="font-body-semibold text-[13px]" style={{ color: '#FFE4C7' }}>
-                Your sales today
+                Counter sales today
               </Text>
               <Text className="font-display text-[22px] text-white">{sales.data ? `${naira(sales.data.totalKobo)} · ${sales.data.count} ${sales.data.count === 1 ? 'sale' : 'sales'}` : '—'}</Text>
             </View>
@@ -59,6 +63,9 @@ export default function Counter() {
 
   return (
     <Screen background={theme.bg} header={header} refreshing={students.isRefetching} onRefresh={() => (students.refetch(), sales.refetch())} accent={theme.accent}>
+      <IdEntry />
+
+      <Title className="mt-2">Or search by name</Title>
       <TextField label="Find a child" placeholder={['Name or admission number', 'Ada', 'JSS/2024/017']} value={search} onChangeText={setSearch} autoCorrect={false} accent={theme.accent} returnKeyType="search" />
 
       {classes.data?.length ? (
@@ -104,7 +111,7 @@ function StudentRow({ student: s }: { student: ShopStudent }) {
   return (
     <PressableScale
       accessibilityLabel={`Sell to ${s.firstName} ${s.lastName}`}
-      onPress={() => router.push({ pathname: '/tuckshop/sell', params: { id: s.id, firstName: s.firstName, lastName: s.lastName, className: s.className ?? '', hasPin: s.hasPin ? '1' : '0' } })}
+      onPress={() => router.push({ pathname: '/tuckshop/sell', params: sellParams(s) })}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: palette.white, borderRadius: 20, padding: 12 }}
     >
       <Avatar initials={initials(s.firstName, s.lastName)} size={44} radius={14} />
@@ -112,9 +119,55 @@ function StudentRow({ student: s }: { student: ShopStudent }) {
         <Label numberOfLines={1}>
           {s.firstName} {s.lastName}
         </Label>
-        <Caption numberOfLines={1}>{[s.className, s.admissionNo].filter(Boolean).join(' · ') || 'No class yet'}</Caption>
+        <Caption numberOfLines={1}>{[s.className, s.shopCode].filter(Boolean).join(' · ')}</Caption>
       </View>
-      {s.hasPin ? <Ionicons name="chevron-forward" size={20} color={palette.ink[300]} /> : <Pill label="No PIN" tone="coral" />}
+      {s.needsPin && !s.hasPin ? <Pill label="No PIN" tone="coral" /> : <Ionicons name="chevron-forward" size={20} color={palette.ink[300]} />}
     </PressableScale>
+  );
+}
+
+const sellParams = (s: ShopStudent) => ({ id: s.id, firstName: s.firstName, lastName: s.lastName, className: s.className ?? '', shopCode: s.shopCode, needsPin: s.needsPin ? '1' : '0', hasPin: s.hasPin ? '1' : '0' });
+
+/** The fast path: type the ID from the child's slip, see their name and class to be sure, then sell. */
+function IdEntry() {
+  const [code, setCode] = useState('');
+  const [finding, setFinding] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const find = async () => {
+    if (!code.trim() || finding) return;
+    setFinding(true);
+    setError(undefined);
+    try {
+      const student = await lookupStudent(code.trim());
+      setCode('');
+      router.push({ pathname: '/tuckshop/sell', params: sellParams(student) });
+    } catch (e) {
+      setError(friendlyError(e));
+    } finally {
+      setFinding(false);
+    }
+  };
+
+  return (
+    <Card className="gap-3">
+      <TextField
+        label="Student ID"
+        placeholder={['ADA-K7M2', 'Admission number']}
+        hint="The tuck shop ID on the child’s slip, or their admission number"
+        value={code}
+        onChangeText={(t) => {
+          setCode(t);
+          setError(undefined);
+        }}
+        error={error}
+        autoCapitalize="characters"
+        autoCorrect={false}
+        returnKeyType="go"
+        onSubmitEditing={find}
+        accent={theme.accent}
+      />
+      <GameButton label="Find child" color={theme.accent} shadowColor={theme.shadow} loading={finding} disabled={!code.trim()} onPress={find} icon={<Ionicons name="search" size={18} color={palette.white} />} />
+    </Card>
   );
 }

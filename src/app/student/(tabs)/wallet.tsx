@@ -1,13 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
-import { QRCode } from '@/components/reacticx/base/qr-code';
 import { NumberFlow } from '@/components/reacticx/molecules/number-flow';
-import { Body, Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, Label, Screen, Title } from '@/components/ui';
+import { Body, Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, Screen, Title } from '@/components/ui';
 import { isPrimary, useBadges, useStudentHome, useStudentWallet } from '@/features/student/api';
 import { naira } from '@/lib/format';
-import { useAuth } from '@/store/auth';
 import { palette, roles } from '@/theme';
 
 /** Secondary students: tuck-shop wallet. Primary pupils: a sticker book instead of money. */
@@ -19,7 +18,6 @@ export default function WalletTab() {
 function StudentWallet() {
   const theme = roles.student;
   const { data, isPending, isError, error, refetch, isRefetching } = useStudentWallet();
-  const userId = useAuth((s) => s.user?.id ?? '');
 
   return (
     <Screen background={theme.bg} refreshing={isRefetching} onRefresh={refetch} accent={theme.accent}>
@@ -39,13 +37,23 @@ function StudentWallet() {
             <Text className="font-body text-[13px] text-violet-100">A parent can top up from their Nexus app.</Text>
           </View>
 
-          <Card className="items-center gap-3 py-5">
+          <Card className="gap-3">
             <Title>Pay at the tuck shop</Title>
-            <Caption className="text-center">Tap the code to make it bigger, then show it to the cashier.</Caption>
-            <QRCode backgroundColorFocused={palette.violet[50]}>
-              <QRCode.Value value={`nexus:pay:${userId}`} size={180} />
-              <QRCode.Label>Show my pay code</QRCode.Label>
-            </QRCode>
+            <GameButton label="Pay from my phone" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.push('/student/pay')} icon={<Ionicons name="send" size={18} color={palette.white} />} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.bg, borderRadius: 16, padding: 14 }}>
+              <Ionicons name="id-card-outline" size={24} color={theme.accent} />
+              <View style={{ flex: 1 }}>
+                <Caption>No phone? Tell them your tuck shop ID</Caption>
+                <Text className="font-display text-[24px] tracking-wider text-ink" accessibilityLabel={`Your tuck shop ID is ${data.shopCode.split('').join(' ')}`}>
+                  {data.shopCode}
+                </Text>
+              </View>
+            </View>
+            {data.dailyLimitKobo !== null ? (
+              <Caption className="text-center">
+                You can spend {naira(Math.max(0, Number(data.dailyLimitKobo) - Number(data.spentTodayKobo)))} more today (your parent set {naira(data.dailyLimitKobo)} a day).
+              </Caption>
+            ) : null}
           </Card>
 
           <Title>Recent</Title>

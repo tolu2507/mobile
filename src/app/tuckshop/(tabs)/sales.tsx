@@ -11,9 +11,12 @@ import type { ShopSale } from '@/types/api';
 const theme = roles.tuckshop;
 const time = (iso: string) => new Date(iso).toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit' });
 
-/** Everything this person sold today, newest first. A sale made by mistake can be undone today. */
+/**
+ * Today at the counter, newest first: every staff member's sales and children paying from their phones,
+ * refreshed every few seconds so staff can watch a phone payment arrive. Mistakes can be undone today.
+ */
 export default function TodaysSales() {
-  const sales = useTodaysSales();
+  const sales = useTodaysSales(true);
   const refund = useRefund();
 
   const undo = (s: ShopSale) =>
@@ -30,7 +33,7 @@ export default function TodaysSales() {
     <Screen background={theme.bg} refreshing={sales.isRefetching} onRefresh={sales.refetch} accent={theme.accent}>
       <View style={{ gap: 4 }}>
         <Display className="text-[30px] leading-[34px]">Today</Display>
-        <Caption className="text-[15px]">Your sales since midnight. Tap a sale to undo it.</Caption>
+        <Caption className="text-[15px]">All sales since midnight, including children who paid from their phone. Tap your own sale, or a phone payment, to undo it.</Caption>
       </View>
       {sales.isPending ? (
         <CardListSkeleton count={4} height={68} />
@@ -51,25 +54,28 @@ export default function TodaysSales() {
             <EmptyState icon="receipt-outline" title="No sales yet" message="Sales you make at the counter today show up here." />
           ) : (
             <View style={{ gap: 10 }}>
-              {sales.data.items.map((s) => (
+              {sales.data.items.map((s) => {
+                const canUndo = !s.refunded && (s.mine || s.fromPhone);
+                return (
                 <PressableScale
                   key={s.id}
-                  disabled={s.refunded || refund.isPending}
+                  disabled={!canUndo || refund.isPending}
                   accessibilityLabel={`${s.studentName}, ${naira(s.amountKobo)} at ${time(s.createdAt)}${s.refunded ? ', undone' : ''}`}
-                  accessibilityHint={s.refunded ? undefined : 'Undo this sale'}
+                  accessibilityHint={canUndo ? 'Undo this sale' : undefined}
                   onPress={() => undo(s)}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: palette.white, borderRadius: 20, padding: 14, opacity: s.refunded ? 0.6 : 1 }}
                 >
                   <View style={{ flex: 1, gap: 2 }}>
                     <Label numberOfLines={1}>{s.studentName}</Label>
-                    <Caption numberOfLines={1}>{[time(s.createdAt), s.note].filter(Boolean).join(' · ')}</Caption>
+                    <Caption numberOfLines={1}>{[time(s.createdAt), s.note, s.mine ? null : s.soldBy].filter(Boolean).join(' · ')}</Caption>
                   </View>
-                  {s.refunded ? <Pill label="Undone" tone="sky" /> : null}
+                  {s.refunded ? <Pill label="Undone" tone="sky" /> : s.fromPhone ? <Pill label="Phone" tone="mint" /> : null}
                   <Text className="font-display-bold text-[18px]" style={{ color: palette.ink.DEFAULT, textDecorationLine: s.refunded ? 'line-through' : 'none' }}>
                     {naira(s.amountKobo)}
                   </Text>
                 </PressableScale>
-              ))}
+                );
+              })}
             </View>
           )}
         </>

@@ -237,7 +237,8 @@ export type Earnings = {
 // ── Money ─────────────────────────────────────────────────
 
 export type WalletEntry = { id: string; amountKobo: Kobo; description: string; createdAt: string };
-export type WalletSummary = { balanceKobo: Kobo; entries: WalletEntry[] };
+/** `dailyLimitKobo` null = no limit. `school` is only sent to the student (who they pay at the tuck shop). */
+export type WalletSummary = { balanceKobo: Kobo; shopCode: string; dailyLimitKobo: Kobo | null; spentTodayKobo: Kobo; entries: WalletEntry[]; school?: { id: string; name: string } | null };
 export type Checkout = { reference: string; checkoutUrl: string };
 export type PaymentStatus = { reference: string; status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED' };
 export type NotificationPrefs = { weeklyReport: boolean; whatsAppReports: boolean; lessonReminders: boolean; payments: boolean; productNews: boolean };
@@ -254,8 +255,10 @@ export type FeeInvoice = {
 };
 
 // ── Tuck shop ───────────────────────────────────────────────
-export type ShopStudent = { id: string; firstName: string; lastName: string; photoUrl: string | null; admissionNo: string | null; className: string | null; hasPin: boolean };
+export type ShopStudent = { id: string; firstName: string; lastName: string; photoUrl: string | null; admissionNo: string | null; className: string | null; shopCode: string; hasPin: boolean; needsPin: boolean };
 export type ShopClass = { id: string; name: string };
 export type ShopReceipt = { id: string; studentName: string; amountKobo: string; balanceKobo: string; note: string | null; createdAt: string };
-export type ShopSale = { id: string; studentName: string; amountKobo: string; note: string | null; createdAt: string; refunded: boolean };
+export type ShopSale = { id: string; studentName: string; amountKobo: string; note: string | null; createdAt: string; refunded: boolean; fromPhone: boolean; soldBy: string | null; mine: boolean };
+export type PhoneReceipt = ShopReceipt & { schoolName: string };
+export type PayableSchool = { id: string; name: string; state: string | null };
 export type ShopSales = { totalKobo: string; count: number; items: ShopSale[] };

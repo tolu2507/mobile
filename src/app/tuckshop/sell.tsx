@@ -24,11 +24,13 @@ const PIN_LENGTH = 4;
 type Step = 'amount' | 'pin' | 'done';
 
 /**
- * One sale: staff type the price, hand the phone to the child, the child types their PIN.
- * The child never sees the staff screens, and staff never see the balance until the PIN is right.
+ * One sale: staff check it's the right child, type the price and charge. Schools that switched on
+ * PINs hand the phone over for the child's PIN first. The parent's daily limit applies either way.
  */
 export default function Sell() {
-  const p = useLocalSearchParams<{ id: string; firstName: string; lastName: string; className: string; hasPin: string }>();
+  const p = useLocalSearchParams<{ id: string; firstName: string; lastName: string; className: string; shopCode: string; needsPin: string; hasPin: string }>();
+  const needsPin = p.needsPin === '1';
+  const charge = useCharge();
   const [step, setStep] = useState<Step>('amount');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -39,17 +41,17 @@ export default function Sell() {
   const nairaAmount = Number(amount || '0');
   const amountError = amount && nairaAmount < MIN_NAIRA ? `The smallest sale is ₦${MIN_NAIRA}.` : nairaAmount > MAX_NAIRA ? `The largest sale is ₦${MAX_NAIRA.toLocaleString('en-NG')}.` : undefined;
 
-  if (p.hasPin === '0') {
+  if (needsPin && p.hasPin === '0') {
     return (
       <Shell>
-        <Header firstName={p.firstName} lastName={p.lastName} className={p.className} onClose={() => router.back()} />
+        <Header firstName={p.firstName} lastName={p.lastName} detail={p.className} onClose={() => router.back()} />
         <Banner tone="error" title={`${p.firstName} doesn’t have a PIN yet`} message="A parent can set one in the Nexus app (Wallet → Change PIN), or the school office can print a new one." />
         <GameButton label="Back to the counter" variant="outline" onPress={() => router.back()} />
       </Shell>
     );
   }
 
-  if (step === 'done' && receipt) return <Done receipt={receipt} firstName={p.firstName} />;
+  if (step === 'done' && receipt) return <Done receipt={receipt} firstName={p.firstName} handBack={needsPin} />;
 
   if (step === 'pin') {
     return (
@@ -71,7 +73,8 @@ export default function Sell() {
 
   return (
     <Shell>
-      <Header firstName={p.firstName} lastName={p.lastName} className={p.className} onClose={() => router.back()} />
+      <Header firstName={p.firstName} lastName={p.lastName} detail={[p.className, p.shopCode].filter(Boolean).join(' · ')} onClose={() => router.back()} />
+      <Caption className="-mt-2">Check this is the child in front of you before you charge.</Caption>
       <View style={{ alignItems: 'center', gap: 2, paddingVertical: 4 }}>
         <Caption>Amount</Caption>
         <Text accessibilityLabel={`${nairaAmount} naira`} className="font-display text-[52px] leading-[60px]" style={{ color: amount ? palette.ink.DEFAULT : palette.ink[300] }}>
@@ -98,14 +101,40 @@ export default function Sell() {
         onKey={(k) => setAmount((a) => (k === 'back' ? a.slice(0, -1) : `${a}${k}`.replace(/^0+/, '').slice(0, 6)))}
       />
       <TextField label="What are they buying? (optional)" placeholder={['Jollof rice', 'Meat pie and juice', 'Exercise book']} value={note} onChangeText={setNote} maxLength={60} accent={theme.accent} />
-      <GameButton
-        label="Next: child types PIN"
-        color={theme.accent}
-        shadowColor={theme.shadow}
-        disabled={!amount || !!amountError}
-        onPress={() => setStep('pin')}
-        icon={<Ionicons name="phone-portrait-outline" size={20} color={palette.white} />}
-      />
+      {charge.isError ? <Banner tone="error" message={friendlyError(charge.error)} /> : null}
+      {needsPin ? (
+        <GameButton
+          label="Next: child types PIN"
+          color={theme.accent}
+          shadowColor={theme.shadow}
+          disabled={!amount || !!amountError}
+          onPress={() => setStep('pin')}
+          icon={<Ionicons name="phone-portrait-outline" size={20} color={palette.white} />}
+        />
+      ) : (
+        <GameButton
+          label={amount && !amountError ? `Charge ₦${nairaAmount.toLocaleString('en-NG')}` : 'Charge'}
+          color={theme.accent}
+          shadowColor={theme.shadow}
+          disabled={!amount || !!amountError}
+          loading={charge.isPending}
+          onPress={() =>
+            // Same request id on a retry, so a lost reply never charges twice.
+            charge.mutate(
+              { studentId: p.id, amountKobo: nairaAmount * 100, note: note.trim() || undefined, requestId },
+              {
+                onSuccess: (r) => {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+                  setReceipt(r);
+                  setStep('done');
+                },
+                onError: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {}),
+              },
+            )
+          }
+          icon={<Ionicons name="checkmark-circle" size={20} color={palette.white} />}
+        />
+      )}
     </Shell>
   );
 }
@@ -122,7 +151,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Header({ firstName, lastName, className, onClose }: { firstName: string; lastName: string; className: string; onClose: () => void }) {
+function Header({ firstName, lastName, detail, onClose }: { firstName: string; lastName: string; detail: string; onClose: () => void }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
       <Avatar initials={initials(firstName, lastName)} size={48} radius={16} />
@@ -130,7 +159,7 @@ function Header({ firstName, lastName, className, onClose }: { firstName: string
         <Text className="font-display-bold text-[20px] text-ink" numberOfLines={1}>
           {firstName} {lastName}
         </Text>
-        {className ? <Caption>{className}</Caption> : null}
+        {detail ? <Caption>{detail}</Caption> : null}
       </View>
       <PressableScale accessibilityLabel="Cancel sale" onPress={onClose} style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: palette.white, alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name="close" size={22} color={palette.ink.DEFAULT} />
@@ -250,7 +279,7 @@ function isRetryable(error: unknown) {
   return isAxiosError(error) && !error.response;
 }
 
-function Done({ receipt, firstName }: { receipt: ShopReceipt; firstName: string }) {
+function Done({ receipt, firstName, handBack }: { receipt: ShopReceipt; firstName: string; handBack: boolean }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.mint[600] }}>
       <View style={{ flex: 1, paddingHorizontal: 24, paddingBottom: 24, justifyContent: 'space-between' }}>
@@ -263,7 +292,7 @@ function Done({ receipt, firstName }: { receipt: ShopReceipt; firstName: string 
           <Display className="mt-2 text-center text-[34px] leading-[40px]" style={{ color: palette.white }}>Paid {naira(receipt.amountKobo)}</Display>
           {receipt.note ? <Body className="text-center text-[17px]" style={{ color: palette.white }}>{receipt.note}</Body> : null}
           <Body className="text-center text-[16px]" style={{ color: palette.mint[50] }}>
-            {firstName} has {naira(receipt.balanceKobo)} left. Please hand the phone back.
+            {firstName} has {naira(receipt.balanceKobo)} left.{handBack ? ' Please hand the phone back.' : ''}
           </Body>
         </View>
         <GameButton label="Next child" variant="white" color={palette.mint[700]} size="xl" onPress={() => router.back()} />
