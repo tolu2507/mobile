@@ -38,7 +38,9 @@ export default function VettingTestScreen() {
   }, [subject, level]);
 
   useEffect(() => {
-    const sub = AppState.addEventListener('change', (s) => { if (s === 'background') appSwitches.current += 1; });
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'background') appSwitches.current += 1;
+    });
     return () => sub.remove();
   }, []);
 
@@ -67,16 +69,28 @@ export default function VettingTestScreen() {
     [navigation, finished, test],
   );
 
-  if (start.isPending || (!test && !start.isError)) return <Screen background={theme.bg}><CardListSkeleton count={5} height={64} /></Screen>;
-  if (start.isError) return <Screen background={theme.bg}><ErrorState error={start.error} onRetry={() => start.mutate({ subject, level })} color={theme.accent} /></Screen>;
+  if (start.isPending || (!test && !start.isError))
+    return (
+      <Screen background={theme.bg}>
+        <CardListSkeleton count={5} height={64} />
+      </Screen>
+    );
+  if (start.isError)
+    return (
+      <Screen background={theme.bg}>
+        <ErrorState error={start.error} onRetry={() => start.mutate({ subject, level })} color={theme.accent} />
+      </Screen>
+    );
 
   if (submit.data) {
     const r = submit.data;
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
         <View className="flex-1 items-center justify-center gap-4 px-8">
-          <Animated.View entering={ZoomIn.springify()} className="h-24 w-24 items-center justify-center rounded-[32px]" style={{ backgroundColor: r.passed ? palette.mint[400] : palette.amber[500] }}>
-            <Ionicons name={r.passed ? 'checkmark-done' : 'refresh'} size={48} color="#FFFFFF" />
+          <Animated.View entering={ZoomIn.springify()}>
+            <View className="h-24 w-24 items-center justify-center rounded-[32px]" style={{ backgroundColor: r.passed ? palette.mint[400] : palette.amber[500] }}>
+              <Ionicons name={r.passed ? 'checkmark-done' : 'refresh'} size={48} color="#FFFFFF" />
+            </View>
           </Animated.View>
           <Display className="text-center text-[30px]">{r.passed ? 'You passed!' : 'Not this time'}</Display>
           <Body className="text-center text-ink-700">
@@ -107,18 +121,30 @@ export default function VettingTestScreen() {
           <SafeAreaView edges={['top']}>
             <View className="gap-4 px-5 pb-5 pt-3">
               <View className="flex-row items-center justify-between">
-                <PressableScale accessibilityLabel="Leave test" onPress={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}>
+                <PressableScale
+                  accessibilityLabel="Leave test"
+                  onPress={() => router.back()}
+                  style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}
+                >
                   <Ionicons name="close" size={22} color="#FFFFFF" />
                 </PressableScale>
-                <View accessibilityLabel={`${mmss(leftMs)} left`} className="flex-row items-center gap-1.5 rounded-full px-3 py-2" style={{ backgroundColor: lowTime ? palette.sun[400] : 'rgba(0,0,0,0.18)' }}>
+                <View
+                  accessibilityLabel={`${mmss(leftMs)} left`}
+                  className="flex-row items-center gap-1.5 rounded-full px-3 py-2"
+                  style={{ backgroundColor: lowTime ? palette.sun[400] : 'rgba(0,0,0,0.18)' }}
+                >
                   <Ionicons name="timer-outline" size={16} color={lowTime ? palette.ink.DEFAULT : '#FFFFFF'} />
-                  <Text style={{ color: lowTime ? palette.ink.DEFAULT : '#FFFFFF', fontFamily: fonts.bodyBold, fontVariant: ['tabular-nums'] }} className="text-[14px]">{mmss(leftMs)}</Text>
+                  <Text style={{ color: lowTime ? palette.ink.DEFAULT : '#FFFFFF', fontFamily: fonts.bodyBold, fontVariant: ['tabular-nums'] }} className="text-[14px]">
+                    {mmss(leftMs)}
+                  </Text>
                 </View>
               </View>
               <QuizProgress {...pos} ids={test!.questions.map((q) => q.id)} />
               <View className="gap-1">
                 <Text className="font-display text-[24px] text-white">{test!.title}</Text>
-                <Text className="font-body text-[14px]" style={{ color: '#FFE7DF' }}>Question {pos.index + 1} of {pos.total} · pass mark {Math.round(test!.passMark * 100)}%</Text>
+                <Text className="font-body text-[14px]" style={{ color: '#FFE7DF' }}>
+                  Question {pos.index + 1} of {pos.total} · pass mark {Math.round(test!.passMark * 100)}%
+                </Text>
               </View>
             </View>
           </SafeAreaView>

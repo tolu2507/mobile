@@ -1,5 +1,4 @@
 import '@/global.css';
-import '@/lib/nativewind-interop';
 
 import {
   BricolageGrotesque_700Bold,

@@ -23,13 +23,28 @@ export default function Play() {
   const quiz = usePlayable(kind, params.id);
   const submit = useSubmitPlay(kind, params.id);
 
-  if (quiz.isPending) return <Screen background={theme.bg}><CardListSkeleton count={5} height={60} /></Screen>;
-  if (quiz.isError) return <Screen background={theme.bg}><ErrorState error={quiz.error} onRetry={quiz.refetch} color={theme.accent} /></Screen>;
+  if (quiz.isPending)
+    return (
+      <Screen background={theme.bg}>
+        <CardListSkeleton count={5} height={60} />
+      </Screen>
+    );
+  if (quiz.isError)
+    return (
+      <Screen background={theme.bg}>
+        <ErrorState error={quiz.error} onRetry={quiz.refetch} color={theme.accent} />
+      </Screen>
+    );
   if (submit.data) return <Results result={submit.data} questions={quiz.data.questions} accent={theme.accent} shadow={theme.shadow} bg={theme.bg} primary={primary} />;
   if (quiz.data.status === 'COMPLETED') {
     return (
       <Screen background={theme.bg}>
-        <EmptyState icon="checkmark-done-outline" title="You already did this one" message="Great work! Your teacher and parent can see your score." action={<GameButton label="Back home" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.back()} />} />
+        <EmptyState
+          icon="checkmark-done-outline"
+          title="You already did this one"
+          message="Great work! Your teacher and parent can see your score."
+          action={<GameButton label="Back home" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.back()} />}
+        />
       </Screen>
     );
   }
@@ -50,7 +65,11 @@ export default function Play() {
           <SafeAreaView edges={['top']}>
             <View className="gap-4 px-5 pb-5 pt-3">
               <View className="flex-row items-center justify-between">
-                <PressableScale accessibilityLabel="Stop playing" onPress={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}>
+                <PressableScale
+                  accessibilityLabel="Stop playing"
+                  onPress={() => router.back()}
+                  style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}
+                >
                   <Ionicons name="close" size={22} color="#FFFFFF" />
                 </PressableScale>
                 <View className="flex-row items-center gap-1.5 rounded-full px-3 py-2" style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}>
@@ -133,7 +152,12 @@ function Results({ result, questions, accent, shadow, bg, primary }: { result: P
 
         {streakAt != null && rewards ? (
           <PopIn delay={streakAt}>
-            <RewardCard tone="coral" icon={<Flame size={30} color={palette.coral[500]} />} title={rewards.streak.days === 1 ? 'Streak started!' : `${rewards.streak.days}-day streak!`} body={rewards.streak.days === 1 ? 'Come back tomorrow to keep it going.' : 'You’ve practised every day. Keep it alive tomorrow!'} />
+            <RewardCard
+              tone="coral"
+              icon={<Flame size={30} color={palette.coral[500]} />}
+              title={rewards.streak.days === 1 ? 'Streak started!' : `${rewards.streak.days}-day streak!`}
+              body={rewards.streak.days === 1 ? 'Come back tomorrow to keep it going.' : 'You’ve practised every day. Keep it alive tomorrow!'}
+            />
           </PopIn>
         ) : null}
 
@@ -163,16 +187,18 @@ function Results({ result, questions, accent, shadow, bg, primary }: { result: P
             const right = q.options.find((o) => o.id === r?.correctId)?.label;
             const chosen = q.options.find((o) => o.id === r?.chosenId)?.label;
             return (
-              <Animated.View key={q.id} entering={FadeInDown.delay(reviewAt + 60 * i)} className="gap-1.5 rounded-[18px] bg-white p-4">
-                <View className="flex-row items-start gap-2">
-                  <Ionicons name={r?.correct ? 'checkmark-circle' : 'close-circle'} size={22} color={r?.correct ? palette.mint[400] : palette.coral[500]} />
-                  <Text className="flex-1 font-body-semibold text-[15px] leading-[21px] text-ink">{q.prompt}</Text>
+              <Animated.View key={q.id} entering={FadeInDown.delay(reviewAt + 60 * i)}>
+                <View className="gap-1.5 rounded-[18px] bg-white p-4">
+                  <View className="flex-row items-start gap-2">
+                    <Ionicons name={r?.correct ? 'checkmark-circle' : 'close-circle'} size={22} color={r?.correct ? palette.mint[400] : palette.coral[500]} />
+                    <Text className="flex-1 font-body-semibold text-[15px] leading-[21px] text-ink">{q.prompt}</Text>
+                  </View>
+                  {!r?.correct ? (
+                    <Text className="pl-7 font-body text-[14px] text-ink-700">
+                      {chosen ? `You chose ${chosen}. ` : ''}Answer: <Text className="font-body-bold text-mint-800">{right}</Text>
+                    </Text>
+                  ) : null}
                 </View>
-                {!r?.correct ? (
-                  <Text className="pl-7 font-body text-[14px] text-ink-700">
-                    {chosen ? `You chose ${chosen}. ` : ''}Answer: <Text className="font-body-bold text-mint-800">{right}</Text>
-                  </Text>
-                ) : null}
               </Animated.View>
             );
           })}

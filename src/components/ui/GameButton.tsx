@@ -73,9 +73,10 @@ export function GameButton({
       style={{ opacity: disabled ? 0.5 : 1 }}
     >
       <View style={{ borderRadius: 18, backgroundColor: s.ledge, paddingBottom: DEPTH }}>
-        <Animated.View
-          style={[
-            {
+        {/* The animated view only moves; a plain view inside carries the look (mixing the two drops styles on Android). */}
+        <Animated.View style={face}>
+          <View
+            style={{
               height,
               borderRadius: 18,
               backgroundColor: s.bg,
@@ -86,10 +87,8 @@ export function GameButton({
               justifyContent: 'center',
               gap: 10,
               paddingHorizontal: 18,
-            },
-            face,
-          ]}
-        >
+            }}
+          >
           {loading ? (
             <ActivityIndicator color={s.text} />
           ) : (
@@ -100,6 +99,7 @@ export function GameButton({
               </Text>
             </>
           )}
+          </View>
         </Animated.View>
       </View>
     </Pressable>

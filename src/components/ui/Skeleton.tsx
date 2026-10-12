@@ -9,7 +9,11 @@ export function Skeleton({ width = '100%', height = 16, radius = 12, className =
     opacity.value = withRepeat(withTiming(1, { duration: 700 }), -1, true);
   }, [opacity]);
   const pulse = useAnimatedStyle(() => ({ opacity: opacity.value }));
-  return <Animated.View className={className} style={[{ width, height, borderRadius: radius, backgroundColor: 'rgba(23,19,58,0.08)' }, pulse]} />;
+  return (
+    <View className={className}>
+      <Animated.View style={[{ width, height, borderRadius: radius, backgroundColor: 'rgba(23,19,58,0.08)' }, pulse]} />
+    </View>
+  );
 }
 
 /** A ready-made skeleton for a list of cards. */

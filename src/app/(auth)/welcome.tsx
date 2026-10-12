@@ -33,34 +33,32 @@ export default function Welcome() {
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
         <View className="flex-1 justify-end gap-8 px-6 pb-6">
-          <Animated.View entering={FadeInDown.duration(600)} className="gap-4">
-            <View className="h-14 w-14 items-center justify-center rounded-2xl bg-white">
-              <Ionicons name="sparkles" size={28} color={palette.violet[500]} />
+          <Animated.View entering={FadeInDown.duration(600)}>
+            <View className="gap-4">
+              <View className="h-14 w-14 items-center justify-center rounded-2xl bg-white">
+                <Ionicons name="sparkles" size={28} color={palette.violet[500]} />
+              </View>
+              <Text accessibilityRole="header" className="font-display text-[44px] leading-[46px] text-white">
+                Learning that feels like play.
+              </Text>
+              <Text className="font-body text-[17px] leading-[25px] text-violet-100">
+                Quests and leagues for students. Weekly progress reports for parents. Approved lesson teachers when you need extra help.
+              </Text>
             </View>
-            <Text accessibilityRole="header" className="font-display text-[44px] leading-[46px] text-white">
-              Learning that feels like play.
-            </Text>
-            <Text className="font-body text-[17px] leading-[25px] text-violet-100">
-              Quests and leagues for students. Weekly progress reports for parents. Approved lesson teachers when you need extra help.
-            </Text>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(150).duration(600)} className="gap-3">
-            <GameButton label="I’m a student" variant="sun" size="xl" onPress={() => router.push('/student-login')} />
-            <GameButton
-              label="I'm a parent"
-              variant="white"
-              color={palette.violet[700]}
-              size="lg"
-              onPress={() => router.push({ pathname: '/signup', params: { role: 'PARENT' } })}
-            />
-            <View className="flex-row justify-center gap-6 py-2">
-              <Text accessibilityRole="link" onPress={() => router.push({ pathname: '/signup', params: { role: 'TUTOR' } })} className="py-2 font-body-bold text-[15px] text-white underline">
-                Teach with Nexus
-              </Text>
-              <Text accessibilityRole="link" onPress={() => router.push('/login')} className="py-2 font-body-bold text-[15px] text-white underline">
-                I have an account
-              </Text>
+          <Animated.View entering={FadeInDown.delay(150).duration(600)}>
+            <View className="gap-3">
+              <GameButton label="I’m a student" variant="sun" size="xl" onPress={() => router.push('/student-login')} />
+              <GameButton label="I'm a parent" variant="white" color={palette.violet[700]} size="lg" onPress={() => router.push({ pathname: '/signup', params: { role: 'PARENT' } })} />
+              <View className="flex-row justify-center gap-6 py-2">
+                <Text accessibilityRole="link" onPress={() => router.push({ pathname: '/signup', params: { role: 'TUTOR' } })} className="py-2 font-body-bold text-[15px] text-white underline">
+                  Teach with Nexus
+                </Text>
+                <Text accessibilityRole="link" onPress={() => router.push('/login')} className="py-2 font-body-bold text-[15px] text-white underline">
+                  I have an account
+                </Text>
+              </View>
             </View>
           </Animated.View>
         </View>

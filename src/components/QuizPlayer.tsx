@@ -35,11 +35,10 @@ export function QuizPlayer({ questions, accent, shadow, background, header, subm
   const submit = () => {
     const missing = questions.length - Object.keys(answers).length;
     if (!missing) return onSubmit(answers);
-    Alert.alert(
-      `${missing} ${missing === 1 ? 'question has' : 'questions have'} no answer`,
-      'Unanswered questions count as wrong. Submit anyway?',
-      [{ text: 'Go back', style: 'cancel' }, { text: 'Submit', onPress: () => onSubmit(answers) }],
-    );
+    Alert.alert(`${missing} ${missing === 1 ? 'question has' : 'questions have'} no answer`, 'Unanswered questions count as wrong. Submit anyway?', [
+      { text: 'Go back', style: 'cancel' },
+      { text: 'Submit', onPress: () => onSubmit(answers) },
+    ]);
   };
 
   return (
@@ -47,24 +46,26 @@ export function QuizPlayer({ questions, accent, shadow, background, header, subm
       {header({ index, total: questions.length, answered: answers })}
       <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
         <View className="flex-1 gap-4 px-5 pt-6">
-          <Animated.View key={q.id} entering={(forward ? FadeInRight : FadeInLeft).duration(240)} className="gap-4">
-            <Text className={`font-display-bold text-ink ${playful ? 'text-[24px] leading-[30px]' : 'text-[20px] leading-[26px]'}`}>{q.prompt}</Text>
-            <View accessibilityRole="radiogroup" className="gap-2.5">
-              {q.options.map((o, i) => (
-                <Option
-                  key={o.id}
-                  label={o.label}
-                  index={i}
-                  selected={answers[q.id] === o.id}
-                  accent={accent}
-                  playful={playful}
-                  onPress={() => {
-                    const next = { ...answers, [q.id]: o.id };
-                    setAnswers(next);
-                    onChange?.(next);
-                  }}
-                />
-              ))}
+          <Animated.View key={q.id} entering={(forward ? FadeInRight : FadeInLeft).duration(240)}>
+            <View className="gap-4">
+              <Text className={`font-display-bold text-ink ${playful ? 'text-[24px] leading-[30px]' : 'text-[20px] leading-[26px]'}`}>{q.prompt}</Text>
+              <View accessibilityRole="radiogroup" className="gap-2.5">
+                {q.options.map((o, i) => (
+                  <Option
+                    key={o.id}
+                    label={o.label}
+                    index={i}
+                    selected={answers[q.id] === o.id}
+                    accent={accent}
+                    playful={playful}
+                    onPress={() => {
+                      const next = { ...answers, [q.id]: o.id };
+                      setAnswers(next);
+                      onChange?.(next);
+                    }}
+                  />
+                ))}
+              </View>
             </View>
           </Animated.View>
 
@@ -124,7 +125,17 @@ function Option({ label, index, selected, accent, playful, onPress }: { label: s
         accessibilityState={{ checked: selected }}
         accessibilityLabel={label}
         onPress={onPress}
-        style={{ minHeight: playful ? 64 : 58, paddingHorizontal: 16, borderRadius: 18, borderWidth: 2, flexDirection: 'row', alignItems: 'center', gap: 12, borderColor: selected ? accent : palette.ink[200], backgroundColor: selected ? `${accent}14` : '#FFFFFF' }}
+        style={{
+          minHeight: playful ? 64 : 58,
+          paddingHorizontal: 16,
+          borderRadius: 18,
+          borderWidth: 2,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          borderColor: selected ? accent : palette.ink[200],
+          backgroundColor: selected ? `${accent}14` : '#FFFFFF',
+        }}
       >
         <View style={{ width: 24, height: 24, borderRadius: 999, borderWidth: 2, borderColor: selected ? accent : palette.ink[300], alignItems: 'center', justifyContent: 'center' }}>
           {selected ? <Animated.View entering={ZoomIn.springify().damping(10)} style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: accent }} /> : null}

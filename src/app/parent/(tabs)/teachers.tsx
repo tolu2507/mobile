@@ -50,26 +50,32 @@ function MatchCard({ match, expanded, onToggle, onBook, booking }: { match: Tuto
           </View>
         </View>
         {expanded ? (
-          <Animated.View entering={FadeInDown.duration(250)} className="gap-3">
-            <View className="flex-row flex-wrap items-center gap-1.5">
-              <NexusApproved />
-              <Pill label={`Subject test: ${percent(match.testScore)}`} tone="mint" />
-              {match.reviewCount ? <Pill label={`${match.rating.toFixed(1)} · ${match.reviewCount} reviews`} tone="amber" icon={<Ionicons name="star" size={12} color="#7A3D00" />} /> : <Pill label="New on Nexus" tone="violet" />}
-              <Pill label={modeLabel[match.mode]} tone="sky" />
-            </View>
-            {match.bio ? <Body className="text-[14px] leading-[21px] text-ink-700">{match.bio}</Body> : null}
-            {match.reasons.length ? <Caption className="text-[13px]">Why we matched: {match.reasons.join(' · ')}</Caption> : null}
-            <Body className="font-body-bold">
-              {naira(match.rateKobo)} <Text className="font-body text-[13px] text-ink-500">/ hour after the free trial</Text>
-            </Body>
-            {booked ? (
-              <View className="flex-row items-center gap-2 rounded-2xl bg-mint-50 p-3.5">
-                <Ionicons name="checkmark-circle" size={20} color={palette.mint[700]} />
-                <Text className="flex-1 font-body-semibold text-[14px] text-mint-800">Requested. They’ll accept and schedule your free trial; you’ll see it below.</Text>
+          <Animated.View entering={FadeInDown.duration(250)}>
+            <View className="gap-3">
+              <View className="flex-row flex-wrap items-center gap-1.5">
+                <NexusApproved />
+                <Pill label={`Subject test: ${percent(match.testScore)}`} tone="mint" />
+                {match.reviewCount ? (
+                  <Pill label={`${match.rating.toFixed(1)} · ${match.reviewCount} reviews`} tone="amber" icon={<Ionicons name="star" size={12} color="#7A3D00" />} />
+                ) : (
+                  <Pill label="New on Nexus" tone="violet" />
+                )}
+                <Pill label={modeLabel[match.mode]} tone="sky" />
               </View>
-            ) : (
-              <GameButton label="Request a free trial lesson" color={theme.accent} shadowColor={theme.shadow} size="md" loading={booking} onPress={onBook} />
-            )}
+              {match.bio ? <Body className="text-[14px] leading-[21px] text-ink-700">{match.bio}</Body> : null}
+              {match.reasons.length ? <Caption className="text-[13px]">Why we matched: {match.reasons.join(' · ')}</Caption> : null}
+              <Body className="font-body-bold">
+                {naira(match.rateKobo)} <Text className="font-body text-[13px] text-ink-500">/ hour after the free trial</Text>
+              </Body>
+              {booked ? (
+                <View className="flex-row items-center gap-2 rounded-2xl bg-mint-50 p-3.5">
+                  <Ionicons name="checkmark-circle" size={20} color={palette.mint[700]} />
+                  <Text className="flex-1 font-body-semibold text-[14px] text-mint-800">Requested. They’ll accept and schedule your free trial; you’ll see it below.</Text>
+                </View>
+              ) : (
+                <GameButton label="Request a free trial lesson" color={theme.accent} shadowColor={theme.shadow} size="md" loading={booking} onPress={onBook} />
+              )}
+            </View>
           </Animated.View>
         ) : null}
       </PressableScale>
@@ -86,13 +92,22 @@ export default function Teachers() {
   const book = useBook();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const openId = expandedId ?? matches.data?.[0]?.id;
-  const refresh = () => { request.refetch(); matches.refetch(); bookings.refetch(); };
+  const refresh = () => {
+    request.refetch();
+    matches.refetch();
+    bookings.refetch();
+  };
 
   if (children.data && children.data.length === 0) {
     return (
       <Screen background={theme.bg}>
         <Display className="text-[26px]">Lesson teachers</Display>
-        <EmptyState icon="people-outline" title="Add a child first" message="Teachers are matched to each child’s subject and level." action={<GameButton label="Add a child" color={theme.accent} shadowColor={theme.shadow} className="mt-2 self-stretch" onPress={() => router.push('/parent/children/new')} />} />
+        <EmptyState
+          icon="people-outline"
+          title="Add a child first"
+          message="Teachers are matched to each child’s subject and level."
+          action={<GameButton label="Add a child" color={theme.accent} shadowColor={theme.shadow} className="mt-2 self-stretch" onPress={() => router.push('/parent/children/new')} />}
+        />
       </Screen>
     );
   }
@@ -113,9 +128,14 @@ export default function Teachers() {
                   <Label>{b.tutor.name}</Label>
                   <Caption>{b.subject}</Caption>
                 </View>
-                <Pill label={b.status === 'PENDING' ? 'Waiting for teacher' : b.status === 'ACTIVE' ? 'Active' : 'Ended'} tone={b.status === 'ACTIVE' ? 'mint' : b.status === 'PENDING' ? 'amber' : 'violet'} />
+                <Pill
+                  label={b.status === 'PENDING' ? 'Waiting for teacher' : b.status === 'ACTIVE' ? 'Active' : 'Ended'}
+                  tone={b.status === 'ACTIVE' ? 'mint' : b.status === 'PENDING' ? 'amber' : 'violet'}
+                />
               </View>
-              {b.sessions.length ? b.sessions.map((s) => <LessonRow key={s.id} session={s} />) : (
+              {b.sessions.length ? (
+                b.sessions.map((s) => <LessonRow key={s.id} session={s} />)
+              ) : (
                 <Caption className="text-[14px]">{b.status === 'PENDING' ? 'The teacher will accept and suggest a time for the free trial.' : 'No lessons scheduled yet.'}</Caption>
               )}
             </Card>
@@ -132,19 +152,33 @@ export default function Teachers() {
           icon="search-outline"
           title={`What does ${child?.firstName ?? 'your child'} need?`}
           message="Tell us the subject, when, where and what kind of teacher. We match you with Nexus-approved teachers who passed our subject test. The first lesson is free."
-          action={<GameButton label="Find a teacher" color={theme.accent} shadowColor={theme.shadow} className="mt-2 self-stretch" onPress={() => router.push({ pathname: '/parent/request', params: { studentId: child!.id } })} />}
+          action={
+            <GameButton
+              label="Find a teacher"
+              color={theme.accent}
+              shadowColor={theme.shadow}
+              className="mt-2 self-stretch"
+              onPress={() => router.push({ pathname: '/parent/request', params: { studentId: child!.id } })}
+            />
+          }
         />
       ) : (
         <>
           <Card className="gap-3">
             <View className="flex-row items-center justify-between">
               <Label>What you asked for</Label>
-              <Body accessibilityRole="link" onPress={() => router.push({ pathname: '/parent/request', params: { studentId: child!.id, requestId: request.data!.id } })} className="py-1 font-body-bold text-[14px] text-mint-700">
+              <Body
+                accessibilityRole="link"
+                onPress={() => router.push({ pathname: '/parent/request', params: { studentId: child!.id, requestId: request.data!.id } })}
+                className="py-1 font-body-bold text-[14px] text-mint-700"
+              >
                 Edit
               </Body>
             </View>
             <View className="flex-row flex-wrap gap-2">
-              {request.data.criteria.map((c) => <Pill key={c} label={c} tone="mint" />)}
+              {request.data.criteria.map((c) => (
+                <Pill key={c} label={c} tone="mint" />
+              ))}
             </View>
           </Card>
 
@@ -153,7 +187,11 @@ export default function Teachers() {
           ) : matches.isError ? (
             <ErrorState error={matches.error} onRetry={matches.refetch} color={theme.accent} />
           ) : matches.data.length === 0 ? (
-            <EmptyState icon="hourglass-outline" title="No approved teachers match yet" message="We’re vetting new teachers every week. Pull down to check again, or widen your request (online lessons or a bigger budget usually help)." />
+            <EmptyState
+              icon="hourglass-outline"
+              title="No approved teachers match yet"
+              message="We’re vetting new teachers every week. Pull down to check again, or widen your request (online lessons or a bigger budget usually help)."
+            />
           ) : (
             <View className="gap-3">
               <Title>Matches</Title>
