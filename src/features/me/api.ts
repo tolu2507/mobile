@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 import { useAuth } from '@/store/auth';
-import type { NotificationPrefs, Privacy, Session, SessionUser } from '@/types/api';
+import type { NotificationPrefs, Privacy, SessionUser } from '@/types/api';
 
 export function useUpdateProfile() {
   const setUser = useAuth((s) => s.setUser);
@@ -31,14 +31,6 @@ export function useSavePrefs() {
     },
     onError: (_e, _b, ctx) => ctx?.prev && qc.setQueryData(['me', 'notifications'], ctx.prev),
     onSuccess: (data) => qc.setQueryData(['me', 'notifications'], data),
-  });
-}
-
-export function useAddRole() {
-  const signIn = useAuth((s) => s.signIn);
-  return useMutation({
-    mutationFn: async (role: 'PARENT' | 'TUTOR') => (await api.post<Session>('/me/roles', { role })).data,
-    onSuccess: signIn,
   });
 }
 

@@ -23,7 +23,7 @@ export default function Login() {
 
   return (
     <FormScreen background={palette.paper} footer={<GameButton label="Sign in" onPress={submit} loading={login.isPending} />}>
-      <ScreenHeader title="Welcome back" subtitle="Parents and lesson teachers sign in here. Students use their username and PIN." />
+      <ScreenHeader title="Welcome back" subtitle="Parents sign in here. Students use their username and PIN." />
       <View className="gap-4">
         <FormTextField
           control={control}

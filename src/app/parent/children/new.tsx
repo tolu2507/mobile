@@ -31,7 +31,6 @@ const schema = z.object({
   pin: z.string().length(4, 'Choose 4 numbers.'),
   consentDataProcessing: z.literal(true, { error: 'We need this to create the account.' }),
   consentAiReports: z.boolean(),
-  consentTutorMatching: z.boolean(),
 });
 
 export default function NewChild() {
@@ -49,7 +48,6 @@ export default function NewChild() {
       pin: '',
       consentDataProcessing: true as const,
       consentAiReports: true,
-      consentTutorMatching: true,
     },
   });
   const level = useWatch({ control, name: 'level' });
@@ -145,13 +143,6 @@ export default function NewChild() {
           control={control}
           name="consentAiReports"
           render={({ field }) => <SwitchRow label="AI weekly reports" description="Our AI writes your Friday report from their real scores." value={field.value} onChange={field.onChange} accent={theme.accent} />}
-        />
-        <Controller
-          control={control}
-          name="consentTutorMatching"
-          render={({ field }) => (
-            <SwitchRow label="Lesson-teacher matching" description="Share subject, level and area (never names) with approved teachers." value={field.value} onChange={field.onChange} accent={theme.accent} />
-          )}
         />
       </Card>
 

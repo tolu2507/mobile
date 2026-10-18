@@ -42,7 +42,7 @@ export default function Welcome() {
                 Learning that feels like play.
               </Text>
               <Text className="font-body text-[17px] leading-[25px] text-violet-100">
-                Quests and leagues for students. Weekly progress reports for parents. Approved lesson teachers when you need extra help.
+                Practice for JAMB, WAEC, NECO and BECE that feels like a game. Weekly progress reports for parents.
               </Text>
             </View>
           </Animated.View>
@@ -51,10 +51,7 @@ export default function Welcome() {
             <View className="gap-3">
               <GameButton label="I’m a student" variant="sun" size="xl" onPress={() => router.push('/student-login')} />
               <GameButton label="I'm a parent" variant="white" color={palette.violet[700]} size="lg" onPress={() => router.push({ pathname: '/signup', params: { role: 'PARENT' } })} />
-              <View className="flex-row justify-center gap-6 py-2">
-                <Text accessibilityRole="link" onPress={() => router.push({ pathname: '/signup', params: { role: 'TUTOR' } })} className="py-2 font-body-bold text-[15px] text-white underline">
-                  Teach with Nexus
-                </Text>
+              <View className="flex-row justify-center py-2">
                 <Text accessibilityRole="link" onPress={() => router.push('/login')} className="py-2 font-body-bold text-[15px] text-white underline">
                   I have an account
                 </Text>

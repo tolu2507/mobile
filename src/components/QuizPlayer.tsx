@@ -24,7 +24,7 @@ type Props = {
   onChange?: (answers: Record<string, string>) => void;
 };
 
-/** One question at a time, answers kept on the phone until "Submit". Used by quests, lesson quizzes and tutor tests. */
+/** One question at a time, answers kept on the phone until "Submit". Used by quests and lesson quizzes. */
 export function QuizPlayer({ questions, accent, shadow, background, header, submitLabel = 'Finish', onSubmit, submitting, error, playful, onChange }: Props) {
   const [index, setIndex] = useState(0);
   const [forward, setForward] = useState(true);

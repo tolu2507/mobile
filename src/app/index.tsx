@@ -7,7 +7,6 @@ export default function Index() {
   const { accessToken, activeRole } = useAuth();
   if (!accessToken) return <Redirect href="/welcome" />;
   if (activeRole === 'PARENT') return <Redirect href="/parent" />;
-  if (activeRole === 'TUTOR') return <Redirect href="/tutor" />;
   if (activeRole === 'STUDENT') return <Redirect href="/student" />;
   if (activeRole === 'TUCK_SHOP') return <Redirect href="/tuckshop" />;
   return <Redirect href="/no-access" />;

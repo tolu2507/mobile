@@ -49,13 +49,6 @@ export default function Privacy() {
                   accent={accent}
                   onChange={(granted) => consent.mutate({ studentId: c.studentId, type: 'AI_REPORTS', granted }, { onError: (e) => toast.error(friendlyError(e)) })}
                 />
-                <SwitchRow
-                  label="Lesson-teacher matching"
-                  description="Shares subject, level and area (never names) with approved teachers."
-                  value={c.consents.TUTOR_MATCHING}
-                  accent={accent}
-                  onChange={(granted) => consent.mutate({ studentId: c.studentId, type: 'TUTOR_MATCHING', granted }, { onError: (e) => toast.error(friendlyError(e)) })}
-                />
                 <View className="flex-row gap-2 pt-2">
                   <View className="flex-1"><GameButton label="Get a copy" size="md" variant="outline" onPress={() => ask('EXPORT', c.studentId)} /></View>
                   <View className="flex-1"><GameButton label="Delete" size="md" variant="danger" onPress={() => ask('DELETE', c.studentId, `${c.firstName}’s`)} /></View>

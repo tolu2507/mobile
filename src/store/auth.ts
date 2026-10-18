@@ -6,8 +6,8 @@ import { mmkvStorage, PUSH_TOKEN_KEY, storage } from '@/lib/storage';
 import type { Membership, Role, Session, SessionUser } from '@/types/api';
 
 /** The mobile experiences. Other school staff and Overwatch use the web app. */
-export type AppRole = 'STUDENT' | 'PARENT' | 'TUTOR' | 'TUCK_SHOP';
-const MOBILE_ROLES: AppRole[] = ['STUDENT', 'PARENT', 'TUTOR', 'TUCK_SHOP'];
+export type AppRole = 'STUDENT' | 'PARENT' | 'TUCK_SHOP';
+const MOBILE_ROLES: AppRole[] = ['STUDENT', 'PARENT', 'TUCK_SHOP'];
 
 type AuthState = {
   accessToken: string | null;

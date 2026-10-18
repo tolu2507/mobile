@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CountUp, Flame, Pulse } from '@/components/game';
 import { Caption, GameButton, Label, PressableScale, ProgressBar, Screen, Title } from '@/components/ui';
+import { ExamPrepCard } from '@/features/exams/components/ExamPrepCard';
 import { greeting } from '@/lib/format';
 import { palette, roles } from '@/theme';
 import type { Quest, StudentHome } from '@/types/api';
@@ -60,6 +61,8 @@ export function SecondaryHome({ home, refreshing, onRefresh }: { home: StudentHo
 
   return (
     <Screen background={theme.bg} header={header} refreshing={refreshing} onRefresh={onRefresh} accent={theme.accent}>
+      <ExamPrepCard level={home.level} grade={home.gradeName} theme={theme} />
+
       {league ? (
       <PressableScale
         onPress={() => router.push('/student/leagues')}

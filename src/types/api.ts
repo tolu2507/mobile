@@ -5,7 +5,6 @@
 
 export type Role = 'PLATFORM_ADMIN' | 'SCHOOL_OWNER' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'TUTOR' | 'TUCK_SHOP';
 export type EducationLevel = 'NURSERY' | 'PRIMARY' | 'JUNIOR_SECONDARY' | 'SENIOR_SECONDARY';
-export type TeachingMode = 'IN_PERSON' | 'ONLINE' | 'BOTH';
 export type Kobo = string;
 
 export type Membership = { id: string; role: Role; schoolId: string | null; schoolName: string | null };
@@ -28,7 +27,7 @@ export type Catalog = {
   exams: string[];
 };
 
-// ── Quizzes (student quests, lesson quizzes, tutor tests share this shape) ──
+// ── Quizzes (student quests and lesson quizzes share this shape) ──
 
 export type Question = { id: string; prompt: string; options: { id: string; label: string }[] };
 export type GradeResult = {
@@ -93,6 +92,25 @@ export type PlayableQuiz = {
   questions: Question[];
 };
 
+// ── Exam prep ─────────────────────────────────────────────
+
+export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE';
+export type ExamSubject = { id: string; slug: string; name: string; compulsory: boolean };
+
+/** One exam from GET /exams: its subjects and the rules for choosing them. */
+export type ExamInfo = {
+  exam: ExamBody;
+  label: string;
+  fullName: string;
+  level: EducationLevel;
+  pick: { min: number; max: number }; // total subjects, compulsory ones included
+  fridayMock: boolean;
+  subjects: ExamSubject[];
+  courses: { course: string; subjectIds: string[] }[];
+};
+
+export type ChosenExam = { exam: ExamBody; targetYear: number | null; subjects: { id: string; slug: string; name: string }[] };
+
 // ── Parent ─────────────────────────────────────────────────
 
 export type Child = {
@@ -119,119 +137,13 @@ export type WeeklyReport = {
   subjects: { name: string; score: number }[];
   lessons: { subject: string; topics: string[]; quizScore: number | null }[];
   homeTip: string;
-  tutorSuggestion: { subject: string; count: number } | null;
   writtenBy: 'ai' | 'summary';
   updatedAt: string;
 };
 
-export type TutorRequest = {
-  id: string;
-  studentId: string;
-  status: 'OPEN' | 'MATCHED' | 'CLOSED';
-  subject: string;
-  level: EducationLevel;
-  goals: string | null;
-  mode: TeachingMode;
-  state: string | null;
-  lga: string | null;
-  budgetMaxKobo: Kobo | null;
-  days: string[];
-  preferences: string[];
-  criteria: string[];
-};
-
-export type TutorMatch = {
-  id: string;
-  tutorId: string;
-  status: 'SUGGESTED' | 'VIEWED' | 'DECLINED' | 'BOOKED';
-  name: string;
-  initials: string;
-  headline: string;
-  bio: string | null;
-  matchScore: number;
-  testScore: number;
-  rating: number;
-  reviewCount: number;
-  rateKobo: Kobo; // what the parent pays per hour, service charge included
-  mode: TeachingMode;
-  reasons: string[];
-};
-
-export type EscrowStatus = 'FREE' | 'UNPAID' | 'HELD' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
-export type SessionStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
-
-export type LessonSession = {
-  id: string;
-  scheduledAt: string;
-  durationMinutes: number;
-  status: SessionStatus;
-  escrowStatus: EscrowStatus;
-  isTrial: boolean;
-  totalKobo?: Kobo;
-  tutorFeeKobo?: Kobo;
-  topicsCovered?: string[];
-  quiz: { status: 'PENDING' | 'COMPLETED' | 'EXPIRED'; score: number | null } | null;
-};
-
-export type ParentBooking = {
-  id: string;
-  status: 'PENDING' | 'ACTIVE' | 'PAUSED' | 'ENDED';
-  subject: string | null;
-  tutor: { name: string; initials: string };
-  sessions: LessonSession[];
-};
-
 export type Privacy = {
-  children: { studentId: string; firstName: string; consents: Record<'DATA_PROCESSING' | 'AI_REPORTS' | 'TUTOR_MATCHING', boolean> }[];
+  children: { studentId: string; firstName: string; consents: Record<'DATA_PROCESSING' | 'AI_REPORTS', boolean> }[];
   requests: { id: string; type: 'EXPORT' | 'DELETE'; status: string; subjectId: string | null; createdAt: string }[];
-};
-
-// ── Tutor ──────────────────────────────────────────────────
-
-export type ApplicationStage = 'PROFILE' | 'ID_CHECK' | 'SUBJECT_TEST' | 'INTERVIEW' | 'APPROVED' | 'REJECTED';
-export type TestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'NO_TEST_YET';
-
-export type TutorApplication = {
-  id: string;
-  stage: ApplicationStage;
-  decisionReason: string | null;
-  interviewAt: string | null;
-  profile: {
-    headline: string | null;
-    bio: string | null;
-    yearsExperience: number | null;
-    qualifications: string[];
-    mode: TeachingMode;
-    state: string | null;
-    lga: string | null;
-    rateKobo: Kobo;
-    isAcceptingStudents: boolean;
-  };
-  idCheck: { ninProvided: boolean; refereeCount: number };
-  subjects: { subject: string; level: EducationLevel; testStatus: TestStatus; score: number | null; retakeAt: string | null }[];
-};
-
-export type VettingTest = { attemptId: string; title: string; passMark: number; expiresAt: string; questions: Question[] };
-export type TestResult = { score: number; correct: number; total: number; passed: boolean; passMark: number; late: boolean };
-
-export type TutorBooking = {
-  id: string;
-  status: 'PENDING' | 'ACTIVE' | 'PAUSED' | 'ENDED';
-  student: { firstName: string; grade: string };
-  parent: { firstName: string; phone: string | null };
-  subject: string | null;
-  goals: string | null;
-  mode: TeachingMode | null;
-  area: string | null;
-  days: string[];
-  sessions: LessonSession[];
-};
-
-export type Earnings = {
-  balanceKobo: Kobo;
-  pendingKobo: Kobo;
-  pendingLessons: number;
-  entries: WalletEntry[];
 };
 
 // ── Money ─────────────────────────────────────────────────

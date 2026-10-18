@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { Checkout, Child, FeeInvoice, ParentBooking, TeachingMode, TutorMatch, TutorRequest, WalletSummary, WeeklyReport } from '@/types/api';
+import type { Checkout, Child, FeeInvoice, WalletSummary, WeeklyReport } from '@/types/api';
 
 export function useChildren() {
   return useQuery({ queryKey: ['parent', 'children'], queryFn: async () => (await api.get<Child[]>('/parent/children')).data });
@@ -16,7 +16,6 @@ export type NewChild = {
   pin: string;
   consentDataProcessing: boolean;
   consentAiReports: boolean;
-  consentTutorMatching: boolean;
 };
 
 /** A child a school linked to this parent, waiting for the parent to say it's really theirs. */
@@ -84,67 +83,3 @@ export const startFeePayment = (invoiceId: string, amountKobo?: number) => async
 
 export const startTopup = (studentId: string, amountKobo: number) => async () =>
   (await api.post<Checkout>(`/parent/children/${studentId}/wallet/topup`, { amountKobo })).data;
-
-export function useTutorRequest(studentId?: string) {
-  return useQuery({
-    queryKey: ['parent', 'tutor-request', studentId],
-    enabled: !!studentId,
-    queryFn: async () => (await api.get<TutorRequest | ''>(`/parent/children/${studentId}/tutor-request`)).data || null,
-  });
-}
-
-export type RequestInput = {
-  studentId: string;
-  subject: string;
-  goals?: string;
-  mode: TeachingMode;
-  state?: string;
-  lga?: string;
-  budgetMaxKobo?: number;
-  days: string[];
-  preferences: string[];
-};
-
-export function useSaveRequest(requestId?: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (body: RequestInput) =>
-      (requestId ? await api.put<TutorRequest>(`/parent/tutor-requests/${requestId}`, body) : await api.post<TutorRequest>('/parent/tutor-requests', body)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent'] }),
-  });
-}
-
-export function useTutorMatches(requestId?: string) {
-  return useQuery({
-    queryKey: ['parent', 'matches', requestId],
-    enabled: !!requestId,
-    queryFn: async () => (await api.get<TutorMatch[]>(`/parent/tutor-requests/${requestId}/matches`)).data,
-  });
-}
-
-export function useBook() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (matchId: string) => (await api.post<{ id: string }>('/parent/bookings', { matchId })).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent'] }),
-  });
-}
-
-export function useParentBookings(studentId?: string) {
-  return useQuery({
-    queryKey: ['parent', 'bookings', studentId],
-    enabled: !!studentId,
-    queryFn: async () => (await api.get<ParentBooking[]>(`/parent/children/${studentId}/bookings`)).data,
-  });
-}
-
-export const startSessionPayment = (sessionId: string) => async () => (await api.post<Checkout>(`/parent/sessions/${sessionId}/pay`)).data;
-
-export function useSessionAction() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ sessionId, action, reason }: { sessionId: string; action: 'confirm' | 'dispute'; reason?: string }) =>
-      (await api.post(`/parent/sessions/${sessionId}/${action}`, action === 'dispute' ? { reason } : {})).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent', 'bookings'] }),
-  });
-}

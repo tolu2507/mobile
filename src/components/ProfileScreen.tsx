@@ -12,13 +12,12 @@ import { palette, type RoleTheme } from '@/theme';
 const roleNames: Record<AppRole, { label: string; icon: keyof typeof Ionicons.glyphMap }> = {
   STUDENT: { label: 'Student', icon: 'school-outline' },
   PARENT: { label: 'Parent', icon: 'people-outline' },
-  TUTOR: { label: 'Lesson teacher', icon: 'easel-outline' },
   TUCK_SHOP: { label: 'Tuck shop', icon: 'storefront-outline' },
 };
 
 export type ProfileRow = { icon: keyof typeof Ionicons.glyphMap; label: string; href?: Href; onPress?: () => void };
 
-/** Shared "Me" page: identity, role switcher (a parent can also be a tutor), settings and sign out. */
+/** Shared "Me" page: identity, role switcher (e.g. a parent who also runs a tuck shop), settings and sign out. */
 export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar = false }: { theme: RoleTheme; extraRows?: ProfileRow[]; children?: React.ReactNode; floatingTabBar?: boolean }) {
   const { user, activeRole, switchRole, signOut } = useAuth();
   const available = mobileRoles(user?.memberships);

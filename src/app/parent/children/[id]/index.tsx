@@ -1,10 +1,11 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { OtpInput } from '@/components/reacticx/base/otp-input';
 import { toast } from '@/components/reacticx/molecules/Toast';
 import { Avatar, Banner, Caption, Card, CardListSkeleton, EmptyState, GameButton, Label, Screen, ScreenHeader, Title } from '@/components/ui';
+import { ExamList } from '@/features/exams/components/ExamList';
 import { useChangePin, useChildren } from '@/features/parent/api';
 import { friendlyError } from '@/lib/api';
 import { initials } from '@/lib/format';
@@ -33,6 +34,11 @@ export default function ChildDetail() {
           <Caption>{child.schoolName ?? 'Learning independently'}</Caption>
         </View>
       </Card>
+
+      <View className="gap-3">
+        <Title>Exam prep</Title>
+        <ExamList level={child.level} owner={{ studentId: child.id }} theme={theme} onOpen={(exam) => router.push({ pathname: '/parent/children/[id]/exams/[exam]', params: { id: child.id, exam } })} />
+      </View>
 
       <Card className="gap-2">
         <Title>How {child.firstName} signs in</Title>

@@ -140,21 +140,6 @@ export default function ParentReports() {
             <Text className="font-body text-[14px] leading-[21px]" style={{ color: '#4A2A05' }}>{r.homeTip}</Text>
           </View>
 
-          {r.tutorSuggestion ? (
-            <PressableScale
-              onPress={() => router.push('/parent/teachers')}
-              accessibilityLabel={`See ${r.tutorSuggestion.subject} teachers`}
-              style={{ backgroundColor: theme.accent, borderRadius: 22, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-            >
-              <View className="flex-1 gap-0.5">
-                <Text className="font-body-bold text-[16px] text-white">
-                  {r.tutorSuggestion.count} Nexus-approved {r.tutorSuggestion.subject} {r.tutorSuggestion.count === 1 ? 'teacher' : 'teachers'}
-                </Text>
-                <Text className="font-body text-[13px]" style={{ color: '#CFF3EA' }}>First lesson free · they passed our subject test</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={22} color="#FFFFFF" />
-            </PressableScale>
-          ) : null}
         </>
       )}
     </Screen>

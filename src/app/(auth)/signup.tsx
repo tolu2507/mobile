@@ -1,18 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useForm, useWatch } from 'react-hook-form';
+import { router } from 'expo-router';
+import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
 
-import { FormChipGroup, FormTextField } from '@/components/form';
+import { FormTextField } from '@/components/form';
 import { Banner, Body, FormScreen, GameButton, ScreenHeader } from '@/components/ui';
 import { useRegister } from '@/features/auth/api';
 import { friendlyError } from '@/lib/api';
 import { email, optionalPhone, password, required } from '@/lib/validation';
 import { roles } from '@/theme';
 
+const theme = roles.parent;
+
 const schema = z.object({
-  role: z.enum(['PARENT', 'TUTOR']),
   firstName: required('Enter your first name.'),
   lastName: required('Enter your last name.'),
   email: email('Enter a valid email. Receipts and reports go here.'),
@@ -21,39 +22,19 @@ const schema = z.object({
 });
 
 export default function Signup() {
-  const params = useLocalSearchParams<{ role?: string }>();
   const register = useRegister();
   const { control, handleSubmit, setFocus } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { role: (params.role === 'TUTOR' ? 'TUTOR' : 'PARENT') as 'PARENT' | 'TUTOR', firstName: '', lastName: '', email: '', phone: '', password: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', password: '' },
   });
-  const role = useWatch({ control, name: 'role' });
-  const theme = role === 'TUTOR' ? roles.tutor : roles.parent;
-  const submit = handleSubmit(({ phone, ...v }) => register.mutate({ ...v, phone: phone || undefined }, { onSuccess: () => router.replace('/') }));
+  const submit = handleSubmit(({ phone, ...v }) => register.mutate({ ...v, phone: phone || undefined, role: 'PARENT' }, { onSuccess: () => router.replace('/') }));
 
   return (
     <FormScreen
       background={theme.bg}
       footer={<GameButton label="Create account" color={theme.accent} shadowColor={theme.shadow} onPress={submit} loading={register.isPending} />}
     >
-      <ScreenHeader
-        title={role === 'TUTOR' ? 'Teach with Nexus' : 'Create your account'}
-        subtitle={
-          role === 'TUTOR'
-            ? 'Set up your profile, pass a short subject test and an interview. Then parents can book you.'
-            : 'Add your children, follow their weekly progress and find approved lesson teachers.'
-        }
-      />
-      <FormChipGroup
-        control={control}
-        name="role"
-        label="I am a"
-        accent={theme.accent}
-        options={[
-          { value: 'PARENT', label: 'Parent or guardian' },
-          { value: 'TUTOR', label: 'Lesson teacher' },
-        ]}
-      />
+      <ScreenHeader title="Create your account" subtitle="Add all your children, follow their exam prep and get a progress report every week." />
       <View className="flex-row gap-3">
         <View className="flex-1">
           <FormTextField control={control} name="firstName" label="First name" autoComplete="given-name" returnKeyType="next" onSubmitEditing={() => setFocus('lastName')} accent={theme.accent} />

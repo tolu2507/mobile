@@ -1,6 +1,6 @@
 # Nexus Mobile
 
-The Nexus app for **students**, **parents** and **lesson teachers**. School staff and the
+The Nexus app for **students**, **parents** and **tuck-shop staff**. School staff and the
 Overwatch admin team use the web app (`../frontend`). Everything talks to the API in `../backend`.
 
 ## Stack
@@ -28,8 +28,7 @@ npx expo start            # press i (iOS simulator), a (Android) or scan the QR 
 **Demo mode** (`EXPO_PUBLIC_USE_MOCKS=true`): every screen runs on sample data in
 `src/features/mocks.ts`, so you can click through the whole app without the backend.
 
-- Sign in with an email starting `parent…` → parent app; `tutor…` → lesson teacher app; anything else → student.
-- Add `both` (e.g. `parent.both@x.com`) to get a parent who is also a tutor and see the account switcher.
+- Sign in with an email starting `parent…` → parent app; anything else → student.
 - Student login: any school code and PIN. Username `tobi` → the **primary-school** experience.
 
 Some Reacticx components (and Skia) need a **development build** rather than Expo Go:
@@ -52,8 +51,7 @@ src/
   app/                    routes (every file is a screen)
     (auth)/               welcome, login, student-login (PIN), forgot-password
     (student)/            tabs: Home · Leagues / My class · Wallet / Stickers · Me
-    (parent)/             tabs: Reports · Teachers · Fees & wallet · Me
-    (tutor)/              application journey, timed subject test, profile
+    (parent)/             tabs: Reports · Fees & wallet · Me
     index.tsx             sends each person to their role's world
   components/
     ui/                   Nexus design components (GameButton, Card, ProgressBar, Skeleton, …)
@@ -70,18 +68,17 @@ src/
 
 ## Roles and worlds
 
-One person can hold several roles (a parent can also be a lesson teacher). The active role
+One person can hold several roles (a parent can also run a tuck shop). The active role
 decides which world they see; they switch on the **Me** tab.
 
 | Role | Look | Highlights |
 |---|---|---|
 | Student, secondary | Violet + sunshine | XP and levels, streaks, weekly leagues with a promotion zone, quests, tuck-shop wallet with a QR pay code |
 | Student, primary | Coral + warm yellow, chunkier | One "adventure" at a time, picture-led worlds, stars and stickers instead of money, floating tab bar with no small labels |
-| Parent | Calm teal | AI weekly report per child, subject scores, home tips, matched **Nexus-approved** teachers, free trial booking, wallet top-up |
-| Lesson teacher | Coral | Five-step approval journey, timed subject test with integrity logging |
+| Parent | Calm teal | AI weekly report per child, subject scores, home tips, wallet top-up |
 
-Parents only ever see "Nexus approved" and the tutor's subject-test score. Where a tutor
-works is never shown.
+Lesson-teacher matching is paused (Nexus itself is the tutor). The tutor screens were removed in
+git; the backend `tutor` module is still there, unused.
 
 ## The UX bar: every screen must have these
 
@@ -105,8 +102,8 @@ npx reacticx add <name> -y        # copies source into src/components/reacticx
 npx reacticx diff <name>          # see upstream changes later
 ```
 
-Restyle it with Nexus tokens through its props (see the `NexusApproved` badge in
-`src/app/(parent)/teachers.tsx`). Edit the copied source only when props can't do it.
+Restyle it with Nexus tokens through its props (e.g. `ScoreRing` wraps
+`circular-progress`). Edit the copied source only when props can't do it.
 In use so far: `animated-input-bar`, `circular-progress`, `number-flow`, `qr-code`, `otp-input`, `Toast`, `verified-badge`.
 
 Local edits to copied sources (re-apply if you pull upstream with `reacticx diff`):
@@ -163,12 +160,6 @@ Hooks call these when mocks are off. The backend still needs to build them.
 | GET | `/me/wallet` | student wallet |
 | GET | `/parent/children` | parent tabs |
 | GET | `/parent/children/:id/reports/latest` | weekly report |
-| GET | `/parent/children/:id/tutor-request` | teachers |
-| GET | `/parent/tutor-requests/:id/matches` | teachers |
-| POST | `/parent/bookings` `{ matchId, trial }` | book trial |
-| GET | `/tutor/application` | tutor home |
-| GET | `/tutor/tests/current` | subject test |
-| POST | `/tutor/tests/:attemptId/submit` `{ answers }` | subject test |
 
 `user.memberships[]` drives which worlds a person can open. Money is sent as kobo strings.
 

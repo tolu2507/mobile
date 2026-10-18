@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 
 import { CountUp, Pulse } from '@/components/game';
 import { GameButton, PressableScale, Screen, subjectIcons, toneColors } from '@/components/ui';
+import { ExamPrepCard } from '@/features/exams/components/ExamPrepCard';
 import { palette, roles } from '@/theme';
 import type { StudentHome } from '@/types/api';
 
@@ -36,6 +37,8 @@ export function PrimaryHome({ home, refreshing, onRefresh }: { home: StudentHome
           <CountUp value={home.stars} fontSize={16} color={palette.ink.DEFAULT} />
         </View>
       </View>
+
+      <ExamPrepCard level={home.level} grade={home.gradeName} theme={theme} />
 
       {home.adventure ? (
         <View style={{ backgroundColor: theme.accent, borderRadius: 28, padding: 20, gap: 14, shadowColor: theme.shadow, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>

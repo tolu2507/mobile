@@ -14,13 +14,6 @@ const FAQ = [
     q: 'How do weekly reports work?',
     a: 'Every Friday at 4pm we summarise the week: quests, lesson quizzes and (if their school uses Nexus) attendance and tests. You can also open the report any time to see the week so far.',
   },
-  { q: 'What does “Nexus approved” mean?', a: 'The teacher passed our subject test, an ID check with two referees, and an interview with the Nexus team.' },
-  {
-    q: 'When does the teacher get paid?',
-    a: 'Your payment waits safely with us. It goes to the teacher when your child finishes the short quiz after the lesson, or when you confirm the lesson happened. If something went wrong, tap “Report a problem” on the lesson and we’ll hold the money while we look into it.',
-  },
-  { q: 'Is the first lesson free?', a: 'Yes. The first lesson with every new teacher is a free trial.' },
-  { q: 'How do I become a lesson teacher?', a: 'Go to Me → Become a lesson teacher (or sign up as a teacher). Fill in your profile, ID check, take a 20-minute subject test, then a short interview.' },
 ];
 
 export default function Help() {
