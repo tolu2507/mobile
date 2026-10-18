@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Confetti, CountUp, Flame, PopIn, ScoreRing, Stars, starsForScore } from '@/components/game';
 import { QuizPlayer, QuizProgress } from '@/components/QuizPlayer';
+import { RewardCard } from '@/components/RewardCard';
 import { Body, CardListSkeleton, EmptyState, ErrorState, GameButton, PressableScale, Screen } from '@/components/ui';
 import { isPrimary, usePlayable, useStudentHome, useSubmitPlay } from '@/features/student/api';
 import { friendlyError } from '@/lib/api';
@@ -207,26 +208,5 @@ function Results({ result, questions, accent, shadow, bg, primary }: { result: P
         <GameButton label="Back home" color={accent} shadowColor={shadow} size="lg" onPress={() => router.back()} />
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-const rewardTones = {
-  coral: { bg: palette.coral[50], badge: palette.coral[100], border: palette.coral[100] },
-  violet: { bg: palette.violet[50], badge: palette.violet[500], border: palette.violet[100] },
-  sun: { bg: palette.sun[50], badge: palette.sun[400], border: palette.sun[100] },
-};
-
-function RewardCard({ tone, icon, title, body }: { tone: keyof typeof rewardTones; icon: ReactNode; title: string; body: string }) {
-  const t = rewardTones[tone];
-  return (
-    <View accessibilityRole="summary" className="flex-row items-center gap-4 rounded-[22px] p-4" style={{ backgroundColor: t.bg, borderWidth: 2, borderColor: t.border }}>
-      <View className="h-14 w-14 items-center justify-center rounded-2xl" style={{ backgroundColor: t.badge }}>
-        {icon}
-      </View>
-      <View className="flex-1 gap-0.5">
-        <Text className="font-display text-[19px] text-ink">{title}</Text>
-        <Text className="font-body text-[14px] leading-[20px] text-ink-700">{body}</Text>
-      </View>
-    </View>
   );
 }

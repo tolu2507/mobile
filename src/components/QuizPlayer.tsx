@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInLeft, FadeInRight, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MathText } from '@/components/MathText';
 import { Banner, GameButton, PressableScale } from '@/components/ui';
-import { palette } from '@/theme';
+import { speakRich } from '@/lib/latex';
+import { fonts, palette } from '@/theme';
 import type { Question } from '@/types/api';
 
 type Props = {
@@ -22,10 +24,12 @@ type Props = {
   playful?: boolean;
   /** Called on every answer change (e.g. so a timer can auto-submit what's there). */
   onChange?: (answers: Record<string, string>) => void;
+  /** Optional label above a question (e.g. "Review"). */
+  tag?: (q: Question) => ReactNode;
 };
 
 /** One question at a time, answers kept on the phone until "Submit". Used by quests and lesson quizzes. */
-export function QuizPlayer({ questions, accent, shadow, background, header, submitLabel = 'Finish', onSubmit, submitting, error, playful, onChange }: Props) {
+export function QuizPlayer({ questions, accent, shadow, background, header, submitLabel = 'Finish', onSubmit, submitting, error, playful, onChange, tag }: Props) {
   const [index, setIndex] = useState(0);
   const [forward, setForward] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -45,10 +49,11 @@ export function QuizPlayer({ questions, accent, shadow, background, header, subm
     <View style={{ flex: 1, backgroundColor: background }}>
       {header({ index, total: questions.length, answered: answers })}
       <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
-        <View className="flex-1 gap-4 px-5 pt-6">
-          <Animated.View key={q.id} entering={(forward ? FadeInRight : FadeInLeft).duration(240)}>
+        <ScrollView key={q.id} className="flex-1" contentContainerClassName="gap-4 px-5 pt-6 pb-4">
+          <Animated.View entering={(forward ? FadeInRight : FadeInLeft).duration(240)}>
             <View className="gap-4">
-              <Text className={`font-display-bold text-ink ${playful ? 'text-[24px] leading-[30px]' : 'text-[20px] leading-[26px]'}`}>{q.prompt}</Text>
+              {tag?.(q)}
+              <MathText text={q.prompt} size={playful ? 24 : 20} fontFamily={fonts.displayBold} mathFont={fonts.bodySemibold} />
               <View accessibilityRole="radiogroup" className="gap-2.5">
                 {q.options.map((o, i) => (
                   <Option
@@ -74,9 +79,9 @@ export function QuizPlayer({ questions, accent, shadow, background, header, subm
               <Banner tone="error" message={`${error} Your answers are still here.`} />
             </Animated.View>
           ) : null}
-
-          <View className="flex-1" />
-          <View className="flex-row gap-2.5 pb-3">
+        </ScrollView>
+        <View className="px-5">
+          <View className="flex-row gap-2.5 pb-3 pt-2">
             <View className="flex-1">
               <GameButton
                 label="Back"
@@ -123,7 +128,7 @@ function Option({ label, index, selected, accent, playful, onPress }: { label: s
       <PressableScale
         accessibilityRole="radio"
         accessibilityState={{ checked: selected }}
-        accessibilityLabel={label}
+        accessibilityLabel={speakRich(label)}
         onPress={onPress}
         style={{
           minHeight: playful ? 64 : 58,
@@ -140,7 +145,9 @@ function Option({ label, index, selected, accent, playful, onPress }: { label: s
         <View style={{ width: 24, height: 24, borderRadius: 999, borderWidth: 2, borderColor: selected ? accent : palette.ink[300], alignItems: 'center', justifyContent: 'center' }}>
           {selected ? <Animated.View entering={ZoomIn.springify().damping(10)} style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: accent }} /> : null}
         </View>
-        <Text className={`flex-1 text-ink ${playful ? 'text-[18px]' : 'text-[16px]'} ${selected ? 'font-body-bold' : 'font-body-semibold'}`}>{label}</Text>
+        <View className="flex-1 py-3">
+          <MathText text={label} size={playful ? 18 : 16} fontFamily={selected ? fonts.bodyBold : fonts.bodySemibold} />
+        </View>
       </PressableScale>
     </Animated.View>
   );

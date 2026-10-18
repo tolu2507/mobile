@@ -21,14 +21,14 @@ export function ExamPrepCard({ level, grade, theme }: { level: EducationLevel; g
   const chosen = mine.data;
   const title = chosen.length ? chosen.map((c) => (c.targetYear ? `${c.exam} ${c.targetYear}` : c.exam)).join(' · ') : 'Set up your exam prep';
   const detail = chosen.length
-    ? `${new Set(chosen.flatMap((c) => c.subjects.map((s) => s.name))).size} subjects. Tap to change them.`
+    ? `${new Set(chosen.flatMap((c) => c.subjects.map((s) => s.name))).size} subjects. Tap to practise.`
     : level === 'PRIMARY'
       ? 'Get ready for Common Entrance, one fun step at a time.'
       : 'Pick your exams and subjects. Takes a minute.';
 
   return (
     <PressableScale
-      onPress={() => router.push('/student/exams')}
+      onPress={() => router.push(chosen.length ? '/student/practice' : '/student/exams')}
       accessibilityRole="button"
       accessibilityLabel={`${title}. ${detail}`}
       style={{ backgroundColor: chosen.length ? '#FFFFFF' : palette.sun[400], borderRadius: 22, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}

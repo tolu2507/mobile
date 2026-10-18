@@ -174,3 +174,30 @@ export type ShopSale = { id: string; studentName: string; amountKobo: string; no
 export type PhoneReceipt = ShopReceipt & { schoolName: string };
 export type PayableSchool = { id: string; name: string; state: string | null };
 export type ShopSales = { totalKobo: string; count: number; items: ShopSale[] };
+
+// ── Topic practice ─────────────────────────────────────────
+
+export type PracticeSubtopic = { id: string; name: string; level: number; mastery: number; answered: number; bossBeaten: boolean; fresh: number; unlocked: boolean };
+export type PracticeMap = {
+  subject: { id: string; exam: ExamBody; name: string };
+  yearsAnalysed: number;
+  leaves: number;
+  conquered: number;
+  mastery: number;
+  reviewsDue: number;
+  topics: { id: string; name: string; weight: number | null; yearsSeen: number | null; hot: boolean; subtopics: PracticeSubtopic[] }[];
+};
+export type PracticeQuestion = Question & { difficulty: number; review: boolean };
+export type PracticeRound = { topicId: string; level: number; boss: boolean; questions: PracticeQuestion[] };
+export type PracticeResult = {
+  counted: number;
+  correct: number;
+  score: number;
+  boss: boolean;
+  levelBefore: number;
+  levelAfter: number;
+  bossBeaten: boolean;
+  xpEarned: number;
+  rewards: Rewards;
+  results: { questionId: string; chosen: string | null; answerId: string; correct: boolean; explanation: string; counted: boolean }[];
+};
