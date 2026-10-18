@@ -9,7 +9,8 @@ export type MathNode =
   | { t: 'sup'; body: MathNode[] }
   | { t: 'sub'; body: MathNode[] }
   | { t: 'sqrt'; body: MathNode[]; index?: MathNode[] }
-  | { t: 'over'; body: MathNode[] };
+  | { t: 'over'; body: MathNode[] }
+  | { t: 'matrix'; rows: MathNode[][][]; delim: '(' | '[' | '|' | '' };
 
 /**
  * A run of prose or of maths. Prose is split into words so lines wrap naturally.
@@ -107,7 +108,10 @@ function readSeq(r: Reader, until?: '}' | ']'): MathNode[] {
     } else {
       r.i++;
       const ch = c === '-' ? '−' : c === '*' ? '×' : c === "'" ? '′' : c;
-      out.push(text(ch, OPERATORS.has(ch) ? { op: true } : {}));
+      // A minus at the start, or after an operator or opening bracket, is a sign ("−3"), not subtraction.
+      const prev = out[out.length - 1];
+      const unary = (ch === '−' || ch === '+') && (!prev || (prev.t === 'text' && (prev.op || /[([{,]$/.test(prev.s))));
+      out.push(text(ch, OPERATORS.has(ch) && !unary ? { op: true } : {}));
     }
   }
   return out;
@@ -141,6 +145,16 @@ function readCommand(r: Reader): MathNode[] {
   let name = '';
   while (!r.done() && /[A-Za-z]/.test(r.peek())) name += r.s[r.i++];
 
+  if (name === 'begin') {
+    const env = r.rawGroup();
+    const delim = ({ pmatrix: '(', bmatrix: '[', vmatrix: '|', matrix: '' } as const)[env as 'matrix'];
+    const end = r.s.indexOf(`\\end{${env}}`, r.i);
+    if (delim === undefined || end < 0) return [text(env)];
+    const body = r.s.slice(r.i, end);
+    r.i = end + `\\end{${env}}`.length;
+    const rows = body.split('\\\\').map((row) => row.split('&').map((cell) => parseMath(cell.trim()))).filter((row) => row.some((c) => c.length));
+    return [{ t: 'matrix', rows, delim }];
+  }
   if (name === 'frac' || name === 'dfrac' || name === 'tfrac' || name === 'cfrac') return [{ t: 'frac', num: readArg(r), den: readArg(r) }];
   if (name === 'sqrt') {
     r.skipSpace();
@@ -262,6 +276,8 @@ export function speak(nodes: MathNode[]): string {
           return n.index ? ` root ${speak(n.index)} of ${speak(n.body)} ` : ` square root of ${speak(n.body)} `;
         case 'over':
           return ` ${speak(n.body)} bar `;
+        case 'matrix':
+          return ` ${n.delim === '|' ? 'determinant' : 'matrix'} with rows ${n.rows.map((row) => row.map(speak).join(', ')).join('; ')} `;
       }
     })
     .join('')

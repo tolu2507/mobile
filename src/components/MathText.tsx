@@ -114,6 +114,32 @@ function MathRow({ nodes, size, ctx }: { nodes: MathNode[]; size: number; ctx: C
                 <MathRow nodes={n.body} size={size} ctx={ctx} />
               </View>
             );
+          case 'matrix': {
+            const cols = Math.max(...n.rows.map((row) => row.length));
+            const inner = Math.max(MIN, size * 0.9);
+            const edge = (side: 'left' | 'right') => {
+              if (!n.delim) return null;
+              const w = rule * 1.4;
+              const curve = n.delim === '(' ? size * 0.5 : 0;
+              const border = n.delim === '|' ? { [side === 'left' ? 'borderLeftWidth' : 'borderRightWidth']: w } : { [side === 'left' ? 'borderLeftWidth' : 'borderRightWidth']: w, borderTopWidth: w, borderBottomWidth: w, [side === 'left' ? 'borderTopLeftRadius' : 'borderTopRightRadius']: curve, [side === 'left' ? 'borderBottomLeftRadius' : 'borderBottomRightRadius']: curve };
+              return <View style={{ width: n.delim === '|' ? w : size * 0.35, alignSelf: 'stretch', borderColor: ctx.color, ...border }} />;
+            };
+            return (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 3, paddingVertical: 2 }}>
+                {edge('left')}
+                <View style={{ flexDirection: 'row', gap: size * 0.7, paddingHorizontal: size * 0.3 }}>
+                  {Array.from({ length: cols }, (_, c) => (
+                    <View key={c} style={{ alignItems: 'center', gap: size * 0.25 }}>
+                      {n.rows.map((row, ri) => (
+                        <MathRow key={ri} nodes={row[c] ?? []} size={inner} ctx={ctx} />
+                      ))}
+                    </View>
+                  ))}
+                </View>
+                {edge('right')}
+              </View>
+            );
+          }
         }
       })}
     </View>
