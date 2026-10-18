@@ -1,10 +1,11 @@
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { toast } from '@/components/reacticx/molecules/Toast';
 import { Body, Caption, Card, CardListSkeleton, EmptyState, ErrorState, GameButton, Label, Screen, ScreenHeader, SwitchRow, Title } from '@/components/ui';
 import { useDataRequest, usePrivacy, useSetConsent } from '@/features/me/api';
 import { friendlyError } from '@/lib/api';
 import { palette, roles } from '@/theme';
+import { confirm } from '@/lib/confirm';
 
 export default function Privacy() {
   const privacy = usePrivacy();
@@ -12,19 +13,15 @@ export default function Privacy() {
   const request = useDataRequest();
   const accent = roles.parent.accent;
 
-  const ask = (type: 'EXPORT' | 'DELETE', studentId?: string, name?: string) =>
-    Alert.alert(
-      type === 'EXPORT' ? 'Request a copy of the data?' : `Delete ${name ?? 'your'} account and data?`,
-      type === 'EXPORT' ? 'We’ll email a copy within 30 days.' : 'We’ll confirm with you by email, then delete everything within 30 days. This can’t be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: type === 'EXPORT' ? 'Request copy' : 'Request deletion',
-          style: type === 'DELETE' ? 'destructive' : 'default',
-          onPress: () => request.mutate({ type, studentId }, { onSuccess: () => toast.success('Request received'), onError: (e) => toast.error(friendlyError(e)) }),
-        },
-      ],
-    );
+  const ask = async (type: 'EXPORT' | 'DELETE', studentId?: string, name?: string) => {
+    const yes = await confirm({
+      title: type === 'EXPORT' ? 'Request a copy of the data?' : `Delete ${name ?? 'your'} account and data?`,
+      message: type === 'EXPORT' ? 'We’ll email a copy within 30 days.' : 'We’ll confirm with you by email, then delete everything within 30 days. This can’t be undone.',
+      confirmLabel: type === 'EXPORT' ? 'Request copy' : 'Request deletion',
+      destructive: type === 'DELETE',
+    });
+    if (yes) request.mutate({ type, studentId }, { onSuccess: () => toast.success('Request received'), onError: (e) => toast.error(friendlyError(e)) });
+  };
 
   return (
     <Screen background={roles.parent.bg} edges={['top', 'bottom']} refreshing={privacy.isRefetching} onRefresh={privacy.refetch} accent={accent}>

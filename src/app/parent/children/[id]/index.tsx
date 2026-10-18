@@ -7,6 +7,7 @@ import { toast } from '@/components/reacticx/molecules/Toast';
 import { Avatar, Banner, Caption, Card, CardListSkeleton, EmptyState, GameButton, Label, Screen, ScreenHeader, Title } from '@/components/ui';
 import { ExamList } from '@/features/exams/components/ExamList';
 import { useChangePin, useChildren } from '@/features/parent/api';
+import { ChildProgress } from '@/features/parent/components/ChildProgress';
 import { friendlyError } from '@/lib/api';
 import { initials } from '@/lib/format';
 import { fonts, palette, roles } from '@/theme';
@@ -34,6 +35,8 @@ export default function ChildDetail() {
           <Caption>{child.schoolName ?? 'Learning independently'}</Caption>
         </View>
       </Card>
+
+      <ChildProgress studentId={child.id} name={child.firstName} theme={theme} />
 
       <View className="gap-3">
         <Title>Exam prep</Title>

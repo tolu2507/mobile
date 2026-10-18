@@ -41,6 +41,12 @@ export default function Notifications() {
               ) : null}
             </>
           ) : null}
+          <SwitchRow
+            label="Friday mock results"
+            description={role === 'PARENT' ? 'Your child’s score and national rank when results come out, around 9pm on Fridays.' : 'Your score and national rank when results come out, around 9pm on Fridays.'}
+            value={prefs.data.examResults}
+            onChange={set('examResults')}
+          />
           <SwitchRow label="Lesson reminders" description="The day before and an hour before each lesson." value={prefs.data.lessonReminders} onChange={set('lessonReminders')} />
           <SwitchRow label="Payments" description="Receipts, top-ups and lesson payments." value={prefs.data.payments} onChange={set('payments')} />
           <SwitchRow label="News from Nexus" description="New features and offers. Never more than twice a month." value={prefs.data.productNews} onChange={set('productNews')} />

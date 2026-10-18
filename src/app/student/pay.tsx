@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,6 +15,7 @@ import { naira } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
 import { palette, roles } from '@/theme';
 import type { PayableSchool, PhoneReceipt } from '@/types/api';
+import { confirm } from '@/lib/confirm';
 
 const theme = roles.student;
 const QUICK = [100, 200, 500, 1000];
@@ -43,13 +44,9 @@ export default function PayTuckShop() {
   const overLimit = leftToday !== null && nairaAmount * 100 > leftToday;
   const problem = tooSmall ? 'The smallest payment is ₦50.' : overBalance ? 'That’s more than you have.' : overLimit ? `You can spend ${naira(leftToday!)} more today.` : undefined;
 
-  const send = () =>
-    Alert.alert(`Pay ₦${nairaAmount.toLocaleString('en-NG')}?`, `To the ${school!.name} tuck shop.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Pay',
-        onPress: () =>
-          pay.mutate(
+  const send = async () => {
+    if (!(await confirm({ title: `Pay ₦${nairaAmount.toLocaleString('en-NG')}?`, message: `To the ${school!.name} tuck shop.`, confirmLabel: 'Pay' }))) return;
+    pay.mutate(
             { amountKobo: nairaAmount * 100, schoolId: ownSchool ? undefined : school!.id, requestId },
             {
               onSuccess: (r) => {
@@ -58,9 +55,8 @@ export default function PayTuckShop() {
               },
               onError: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {}),
             },
-          ),
-      },
-    ]);
+          );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>

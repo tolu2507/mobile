@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { Checkout, Child, FeeInvoice, WalletSummary, WeeklyReport } from '@/types/api';
+import type { Checkout, Child, ChildCard, ChildProgress, FeeInvoice, WalletSummary, WeeklyReport } from '@/types/api';
 
 export function useChildren() {
   return useQuery({ queryKey: ['parent', 'children'], queryFn: async () => (await api.get<Child[]>('/parent/children')).data });
@@ -83,3 +83,11 @@ export const startFeePayment = (invoiceId: string, amountKobo?: number) => async
 
 export const startTopup = (studentId: string, amountKobo: number) => async () =>
   (await api.post<Checkout>(`/parent/children/${studentId}/wallet/topup`, { amountKobo })).data;
+
+export function useChildCards() {
+  return useQuery({ queryKey: ['parent', 'progress'], queryFn: async () => (await api.get<ChildCard[]>('/parent/progress')).data });
+}
+
+export function useChildProgress(studentId: string) {
+  return useQuery({ queryKey: ['parent', 'progress', studentId], queryFn: async () => (await api.get<ChildProgress>(`/parent/children/${studentId}/progress`)).data });
+}

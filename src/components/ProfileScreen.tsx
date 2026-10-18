@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, type Href } from 'expo-router';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Avatar, Body, Caption, Card, Display, GameButton, Label, PressableScale, Screen } from '@/components/ui';
 import { API_URL } from '@/lib/api';
@@ -8,6 +8,7 @@ import { initials } from '@/lib/format';
 import { queryClient } from '@/lib/query-client';
 import { mobileRoles, useAuth, type AppRole } from '@/store/auth';
 import { palette, type RoleTheme } from '@/theme';
+import { confirm } from '@/lib/confirm';
 
 const roleNames: Record<AppRole, { label: string; icon: keyof typeof Ionicons.glyphMap }> = {
   STUDENT: { label: 'Student', icon: 'school-outline' },
@@ -24,19 +25,12 @@ export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar 
   const school = user?.memberships.find((m) => m.schoolName)?.schoolName;
   const isStudent = activeRole === 'STUDENT';
 
-  const confirmSignOut = () =>
-    Alert.alert('Sign out?', 'You can sign back in any time.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign out',
-        style: 'destructive',
-        onPress: () => {
-          signOut(API_URL);
-          queryClient.clear();
-          router.replace('/welcome');
-        },
-      },
-    ]);
+  const confirmSignOut = async () => {
+    if (!(await confirm({ title: 'Sign out?', message: 'You can sign back in any time.', confirmLabel: 'Sign out', destructive: true }))) return;
+    signOut(API_URL);
+    queryClient.clear();
+    router.replace('/welcome');
+  };
 
   const rows: ProfileRow[] = [
     ...extraRows,

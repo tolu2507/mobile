@@ -21,7 +21,7 @@ const MIN = 11;
  * Android, iOS and the web without a WebView. Text without maths is a single <Text>.
  */
 export const MathText = memo(function MathText({ text, size = 16, color = palette.ink.DEFAULT, fontFamily = fonts.body, mathFont, style }: Props) {
-  const pieces = useMemo(() => (text.includes('$') ? parseRich(text) : null), [text]);
+  const pieces = useMemo(() => (/[$*]/.test(text) ? parseRich(text) : null), [text]);
   const base: TextStyle = { fontSize: size, lineHeight: Math.round(size * 1.35), color, fontFamily };
   if (!pieces) return <Text style={[base, style as StyleProp<TextStyle>]}>{text}</Text>;
 
@@ -42,7 +42,7 @@ export const MathText = memo(function MathText({ text, size = 16, color = palett
           <View key={i} style={{ width: '100%' }} />
         ) : (
           <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', maxWidth: '100%', flexShrink: 1, marginRight: gap }}>
-            {chunk.map((p, j) => (p.kind === 'word' ? <Text key={j} style={base}>{p.s}</Text> : p.kind === 'math' ? <MathRow key={j} nodes={p.nodes} size={size} ctx={ctx} /> : null))}
+            {chunk.map((p, j) => (p.kind === 'word' ? <Text key={j} style={p.italic ? [base, { fontStyle: 'italic' }] : base}>{p.s}</Text> : p.kind === 'math' ? <MathRow key={j} nodes={p.nodes} size={size} ctx={ctx} /> : null))}
           </View>
         ),
       )}

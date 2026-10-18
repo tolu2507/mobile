@@ -1,33 +1,33 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { toast } from '@/components/reacticx/molecules/Toast';
-import { Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, PressableScale, ProgressBar, Screen } from '@/components/ui';
-import { usePrivacy, useSetConsent } from '@/features/me/api';
-import { useChildren, useLatestReport } from '@/features/parent/api';
-import { ChildSwitcher, useCurrentChild } from '@/features/parent/components/ChildSwitcher';
+import { Flame } from '@/components/game';
+import { Avatar, Caption, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, PressableScale, Screen } from '@/components/ui';
+import { countdown, lagosWhen, ordinal } from '@/features/mocks/format';
+import { useChildCards, useChildren } from '@/features/parent/api';
 import { PendingChildren } from '@/features/parent/components/PendingChildren';
-import { friendlyError } from '@/lib/api';
+import { initials } from '@/lib/format';
+import { useNow } from '@/lib/useNow';
 import { palette, roles } from '@/theme';
+import type { Child, ChildCard as Card } from '@/types/api';
 
 const theme = roles.parent;
-const scoreColor = (s: number) => (s >= 70 ? palette.mint[400] : s >= 55 ? palette.sun[400] : palette.amber[500]);
 
-export default function ParentReports() {
+/** Parent home: every child at a glance. Tap one for the full picture. */
+export default function ParentHome() {
   const children = useChildren();
-  const child = useCurrentChild();
-  const report = useLatestReport(child?.id);
-  const r = report.data;
-  const privacy = usePrivacy();
-  const setConsent = useSetConsent();
-  const reportsOn = privacy.data?.children.find((c) => c.studentId === child?.id)?.consents.AI_REPORTS;
+  const cards = useChildCards();
+  const refresh = () => {
+    void children.refetch();
+    void cards.refetch();
+  };
 
   return (
-    <Screen background={theme.bg} accent={theme.accent} refreshing={report.isRefetching || children.isRefetching} onRefresh={() => { children.refetch(); report.refetch(); }}>
+    <Screen background={theme.bg} accent={theme.accent} refreshing={children.isRefetching || cards.isRefetching} onRefresh={refresh}>
       <View className="flex-row items-center justify-between">
-        <Display className="text-[26px]">Weekly report</Display>
+        <Display className="text-[26px]">My children</Display>
         <PressableScale accessibilityLabel="Add a child" onPress={() => router.push('/parent/children/new')} style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name="person-add-outline" size={21} color={palette.ink.DEFAULT} />
         </PressableScale>
@@ -35,113 +35,127 @@ export default function ParentReports() {
 
       <PendingChildren />
 
-      <ChildSwitcher />
-
       {children.isPending ? (
-        <CardListSkeleton count={3} height={110} />
+        <CardListSkeleton count={2} height={190} />
       ) : children.isError ? (
-        <ErrorState error={children.error} onRetry={children.refetch} color={theme.accent} />
+        <ErrorState error={children.error} onRetry={refresh} color={theme.accent} />
       ) : children.data.length === 0 ? (
         <EmptyState
           icon="people-outline"
           title="Add your first child"
-          message="Create a login for your child in under a minute. No school needed: they can start learning today, and you’ll get a report every Friday."
+          message="Create a login for your child in under a minute. No school needed: they can start practising for their exams today, and you’ll see exactly how they’re doing."
           action={<GameButton label="Add a child" color={theme.accent} shadowColor={theme.shadow} className="mt-2 self-stretch" onPress={() => router.push('/parent/children/new')} />}
         />
-      ) : report.isPending ? (
-        <CardListSkeleton count={4} height={110} />
-      ) : report.isError ? (
-        <ErrorState error={report.error} onRetry={report.refetch} color={theme.accent} />
-      ) : !r && reportsOn === false ? (
-        <EmptyState
-          icon="sparkles-outline"
-          title="Switch on weekly reports"
-          message={`Every Friday, Nexus AI writes a short report on how ${child?.firstName} did, from their real attendance, scores and teacher notes. Only you see it.`}
-          action={
-            <GameButton
-              label="Switch on reports"
-              color={theme.accent}
-              shadowColor={theme.shadow}
-              className="mt-2 self-stretch"
-              loading={setConsent.isPending}
-              onPress={() =>
-                setConsent.mutate(
-                  { studentId: child!.id, type: 'AI_REPORTS', granted: true },
-                  {
-                    onSuccess: () => {
-                      toast.success('Weekly reports are on');
-                      report.refetch();
-                    },
-                    onError: (e) => toast.error(friendlyError(e)),
-                  },
-                )
-              }
-            />
-          }
-        />
-      ) : !r ? (
-        <EmptyState
-          icon="sparkles-outline"
-          title={`Nothing to report yet`}
-          message={`When ${child?.firstName} finishes a quest or a lesson quiz, their report appears here. Ask them to sign in with username “${child?.username}” and their PIN.`}
-        />
       ) : (
-        <>
-          <Animated.View entering={FadeInDown.springify().damping(16)} style={{ backgroundColor: '#12302B', borderRadius: 24, padding: 18, gap: 14 }}>
-            <Text className="font-body-semibold text-[13px]" style={{ color: '#9FE3D2' }}>
-              {r.isThisWeek ? 'This week so far' : r.weekLabel} · {r.writtenBy === 'ai' ? 'written by Nexus AI from real scores' : 'from real scores'}
-            </Text>
-            <Text className="font-display-bold text-[21px] leading-[27px] text-white">{r.headline}</Text>
-            {r.summary ? <Text className="font-body text-[14px] leading-[21px]" style={{ color: '#D7F1EA' }}>{r.summary}</Text> : null}
-            <View className="flex-row gap-2">
-              {[
-                ...(r.attendance ? [{ value: `${r.attendance.present}/${r.attendance.total}`, label: 'days present' }] : []),
-                { value: `+${r.xpEarned}`, label: 'XP earned' },
-                { value: `${r.streak}`, label: 'day streak' },
-              ].map((s) => (
-                <View key={s.label} accessibilityLabel={`${s.value} ${s.label}`} className="flex-1 gap-0.5 rounded-2xl bg-white/10 p-2.5">
-                  <Text className="font-display text-[22px] text-white">{s.value}</Text>
-                  <Text className="font-body text-[12px]" style={{ color: '#C6E9E0' }}>{s.label}</Text>
-                </View>
-              ))}
-            </View>
+        children.data.map((c, i) => (
+          <Animated.View key={c.id} entering={FadeInDown.delay(i * 80).springify().damping(16)}>
+            <ChildTile child={c} card={cards.data?.find((x) => x.studentId === c.id)} loading={cards.isPending} />
           </Animated.View>
-
-          {r.subjects.length ? (
-            <Card className="gap-3">
-              <Label>Scores by subject</Label>
-              {r.subjects.map((s) => (
-                <View key={s.name} className="flex-row items-center gap-2.5">
-                  <Text numberOfLines={1} className="w-[100px] font-body text-[14px] text-ink">{s.name}</Text>
-                  <View className="flex-1"><ProgressBar value={s.score / 100} color={scoreColor(s.score)} track="#E6F0ED" accessibilityLabel={`${s.name} score`} /></View>
-                  <Text style={{ color: s.score < 55 ? palette.amber[700] : palette.ink.DEFAULT }} className="w-9 text-right font-body-bold text-[14px]">{s.score}</Text>
-                </View>
-              ))}
-            </Card>
-          ) : null}
-
-          {r.lessons.length ? (
-            <Card className="gap-2">
-              <Label>Lessons this week</Label>
-              {r.lessons.map((l, i) => (
-                <View key={i} className="flex-row items-center justify-between gap-3">
-                  <Caption className="flex-1 text-[14px]" numberOfLines={2}>{l.subject}: {l.topics.join(', ')}</Caption>
-                  <Text className="font-body-bold text-[14px] text-ink">{l.quizScore != null ? `Quiz ${l.quizScore}%` : 'Quiz pending'}</Text>
-                </View>
-              ))}
-            </Card>
-          ) : null}
-
-          <View className="gap-2 rounded-[22px] bg-amber-50 p-4">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="bulb-outline" size={20} color={palette.amber[700]} />
-              <Text className="font-body-bold text-[15px] text-amber-800">How you can help at home</Text>
-            </View>
-            <Text className="font-body text-[14px] leading-[21px]" style={{ color: '#4A2A05' }}>{r.homeTip}</Text>
-          </View>
-
-        </>
+        ))
       )}
     </Screen>
+  );
+}
+
+function ChildTile({ child, card, loading }: { child: Child; card?: Card; loading: boolean }) {
+  const w = card?.week;
+  const accuracy = w?.questions ? Math.round((w.correct / w.questions) * 100) : null;
+  const exams = card?.exams.map((e) => (e.targetYear ? `${e.label} ${e.targetYear}` : e.label)).join(' · ');
+  const quiet = !!card && !loading && w?.activeDays === 0;
+
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel={`${child.firstName}. ${w ? `${w.questions} questions this week.` : ''} Open ${child.firstName}’s progress`}
+      onPress={() => router.push({ pathname: '/parent/children/[id]', params: { id: child.id } })}
+      style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 16, gap: 14 }}
+    >
+      <View className="flex-row items-center gap-3">
+        <Avatar initials={initials(child.firstName, child.lastName)} size={52} radius={17} />
+        <View className="flex-1 gap-0.5">
+          <Text className="font-display text-[20px] text-ink">{child.firstName}</Text>
+          <Caption numberOfLines={1}>
+            {child.className}
+            {exams ? ` · ${exams}` : ''}
+          </Caption>
+        </View>
+        {card ? (
+          <View accessibilityLabel={`${card.streak} day streak`} className="flex-row items-center gap-1 rounded-full bg-coral-50 px-3 py-1.5">
+            <Flame size={16} alive={card.streak > 0} />
+            <Text className="font-body-bold text-[14px] text-ink">{card.streak}</Text>
+          </View>
+        ) : null}
+      </View>
+
+      {loading ? (
+        <View className="h-[64px] rounded-2xl bg-ink-100/50" />
+      ) : w ? (
+        <View className="flex-row gap-2">
+          <Stat value={String(w.questions)} label="questions this week" />
+          <Stat value={accuracy == null ? '–' : `${accuracy}%`} label="right" />
+          <Stat value={`${w.activeDays}/7`} label="days practised" />
+        </View>
+      ) : null}
+
+      {card?.lastMock ? (
+        <View className="flex-row items-center gap-2.5 rounded-2xl p-3" style={{ backgroundColor: theme.accentSoft }}>
+          <MaterialCommunityIcons name="clipboard-text-clock-outline" size={22} color={theme.accent} />
+          <View className="flex-1">
+            <Label className="text-[15px]">
+              {card.lastMock.score}/{card.lastMock.outOf} in the {card.lastMock.title.split(' · ')[0]}
+            </Label>
+            <Caption>
+              {card.lastMock.rank && card.lastMock.sat ? `${ordinal(card.lastMock.rank)} of ${card.lastMock.sat.toLocaleString()} nationally` : 'National rank comes out at 9pm'}
+            </Caption>
+          </View>
+        </View>
+      ) : null}
+
+      {card?.nextMock ? <NextMock m={card.nextMock} name={child.firstName} /> : null}
+
+      {quiet ? (
+        <View className="flex-row items-center gap-2 rounded-2xl bg-amber-50 p-3">
+          <Ionicons name="alert-circle-outline" size={20} color={palette.amber[700]} />
+          <Text className="flex-1 font-body-semibold text-[14px] text-amber-800">
+            {child.firstName} hasn’t practised yet this week. A quick 10 minutes keeps the streak alive.
+          </Text>
+        </View>
+      ) : null}
+
+      <View className="flex-row items-center justify-end gap-1">
+        <Text style={{ color: theme.accent }} className="font-body-bold text-[14px]">
+          See progress
+        </Text>
+        <Ionicons name="chevron-forward" size={16} color={theme.accent} />
+      </View>
+    </PressableScale>
+  );
+}
+
+function NextMock({ m, name }: { m: NonNullable<Card['nextMock']>; name: string }) {
+  const now = useNow();
+  const label = m.title.split(' · ')[0];
+  const text =
+    m.state === 'OPEN'
+      ? m.taken
+        ? `${name} has sat this week’s ${label}. Results at 9pm.`
+        : `${label} is open now until ${lagosWhen(m.closesAt, false)}. Remind ${name}!`
+      : m.state === 'MARKING'
+        ? `${label} results come out shortly.`
+        : `Next ${label}: ${lagosWhen(m.opensAt)} (in ${countdown(new Date(m.opensAt).getTime() - now)})`;
+  return (
+    <View className="flex-row items-center gap-2">
+      <Ionicons name={m.state === 'OPEN' && !m.taken ? 'radio-button-on' : 'calendar-outline'} size={16} color={m.state === 'OPEN' && !m.taken ? palette.coral[500] : palette.ink[500]} />
+      <Caption className={`flex-1 ${m.state === 'OPEN' && !m.taken ? 'font-body-bold text-coral-700' : ''}`}>{text}</Caption>
+    </View>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <View accessibilityLabel={`${value} ${label}`} className="flex-1 gap-0.5 rounded-2xl bg-paper p-2.5">
+      <Text className="font-display text-[20px] text-ink">{value}</Text>
+      <Text className="font-body text-[12px] text-ink-500">{label}</Text>
+    </View>
   );
 }

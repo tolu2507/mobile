@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInLeft, FadeInRight, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +8,7 @@ import { Banner, GameButton, PressableScale } from '@/components/ui';
 import { speakRich } from '@/lib/latex';
 import { fonts, palette } from '@/theme';
 import type { Question } from '@/types/api';
+import { confirm } from '@/lib/confirm';
 
 type Props = {
   questions: Question[];
@@ -39,10 +40,7 @@ export function QuizPlayer({ questions, accent, shadow, background, header, subm
   const submit = () => {
     const missing = questions.length - Object.keys(answers).length;
     if (!missing) return onSubmit(answers);
-    Alert.alert(`${missing} ${missing === 1 ? 'question has' : 'questions have'} no answer`, 'Unanswered questions count as wrong. Submit anyway?', [
-      { text: 'Go back', style: 'cancel' },
-      { text: 'Submit', onPress: () => onSubmit(answers) },
-    ]);
+    void confirm({ title: `${missing} ${missing === 1 ? 'question has' : 'questions have'} no answer`, message: 'Unanswered questions count as wrong. Submit anyway?', confirmLabel: 'Submit', cancelLabel: 'Go back' }).then((yes) => yes && onSubmit(answers));
   };
 
   return (

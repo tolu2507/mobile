@@ -15,7 +15,7 @@ export type MathNode =
  * A run of prose or of maths. Prose is split into words so lines wrap naturally.
  * `glue` means there was no space before it in the source ("$x$." or "($M$)"), so it stays on the same line with no gap.
  */
-export type Piece = { kind: 'word'; s: string; glue: boolean } | { kind: 'math'; nodes: MathNode[]; glue: boolean } | { kind: 'break' };
+export type Piece = { kind: 'word'; s: string; glue: boolean; italic?: boolean } | { kind: 'math'; nodes: MathNode[]; glue: boolean } | { kind: 'break' };
 
 const SYMBOLS: Record<string, string> = {
   times: '×', div: '÷', pm: '±', mp: '∓', cdot: '·', ast: '∗', le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠',
@@ -181,6 +181,7 @@ export function parseMath(src: string): MathNode[] {
 export function parseRich(input: string): Piece[] {
   const out: Piece[] = [];
   let spaceBefore = true; // whether the source had a space just before the next piece
+  let italic = false; // inside *…* (English questions mark the tested word this way)
   const prose = (s: string) => {
     s.replace(/\\\$/g, '$')
       .replace(/\*\*/g, '')
@@ -200,7 +201,19 @@ export function parseRich(input: string): Piece[] {
             tail.s += punct;
             w = w.slice(punct.length);
           }
-          if (w) out.push({ kind: 'word', s: w, glue });
+          // *word* or *two words*, possibly followed by punctuation: "*candid*."
+          const opens = /^\*[^*]/.test(w);
+          if (opens) w = w.slice(1);
+          const closes = (italic || opens) && /[^*]\*[^\w*]*$/.test(w);
+          let after = '';
+          if (closes) {
+            after = w.match(/\*([^\w*]*)$/)![1];
+            w = w.slice(0, w.length - after.length - 1);
+          }
+          if (w) out.push({ kind: 'word', s: w, glue, ...(italic || opens ? { italic: true } : {}) });
+          if (after) out.push({ kind: 'word', s: after, glue: true });
+          if (opens) italic = true;
+          if (closes) italic = false;
           spaceBefore = true;
         });
         spaceBefore = words[words.length - 1] === '';

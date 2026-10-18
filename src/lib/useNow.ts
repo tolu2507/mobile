@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-/** Current time that re-renders every `intervalMs` (keeps "has this lesson started?" checks pure). */
-export function useNow(intervalMs = 60_000) {
+/** The current time, refreshed every `every` ms, so countdowns stay live without reading the clock during render. */
+export function useNow(every = 30_000) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), intervalMs);
-    return () => clearInterval(id);
-  }, [intervalMs]);
+    const t = setInterval(() => setNow(Date.now()), every);
+    return () => clearInterval(t);
+  }, [every]);
   return now;
 }

@@ -153,7 +153,7 @@ export type WalletEntry = { id: string; amountKobo: Kobo; description: string; c
 export type WalletSummary = { balanceKobo: Kobo; shopCode: string; dailyLimitKobo: Kobo | null; spentTodayKobo: Kobo; entries: WalletEntry[]; school?: { id: string; name: string } | null };
 export type Checkout = { reference: string; checkoutUrl: string };
 export type PaymentStatus = { reference: string; status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED' };
-export type NotificationPrefs = { weeklyReport: boolean; whatsAppReports: boolean; lessonReminders: boolean; payments: boolean; productNews: boolean };
+export type NotificationPrefs = { weeklyReport: boolean; examResults: boolean; whatsAppReports: boolean; lessonReminders: boolean; payments: boolean; productNews: boolean };
 
 export type FeeInvoice = {
   id: string;
@@ -200,4 +200,74 @@ export type PracticeResult = {
   xpEarned: number;
   rewards: Rewards;
   results: { questionId: string; chosen: string | null; answerId: string; correct: boolean; explanation: string; counted: boolean }[];
+};
+
+// ── Friday mock ────────────────────────────────────────────
+
+export type MockState = 'UPCOMING' | 'OPEN' | 'MARKING' | 'RESULTS_OUT';
+export type MockSubjectScore = { name: string; correct: number; total: number; score: number };
+export type UpcomingMock = {
+  id: string;
+  exam: ExamBody;
+  title: string;
+  opensAt: string;
+  closesAt: string;
+  durationMinutes: number;
+  state: MockState;
+  outOf: number;
+  subjects: { id: string; name: string; needed: number; available: number }[];
+  ready: boolean;
+  sitting: { id: string; submitted: boolean; deadlineAt: string } | null;
+};
+export type MockSummary = {
+  sittingId: string;
+  mockId: string;
+  exam: ExamBody;
+  title: string;
+  opensAt: string;
+  score: number | null;
+  outOf: number;
+  subjects: MockSubjectScore[];
+  nationalRank: number | null;
+  percentile: number | null;
+  sat: number;
+  resultsOut: boolean;
+};
+export type MocksOverview = { upcoming: UpcomingMock[]; past: MockSummary[] };
+export type MockPaper = {
+  sittingId: string;
+  title: string;
+  exam: ExamBody;
+  deadlineAt: string;
+  serverNow: string;
+  submitted: boolean;
+  answers: Record<string, string>;
+  subjects: { id: string; name: string; questions: Question[] }[];
+};
+export type MockResult = MockSummary & {
+  closesAt: string;
+  review: { subjectId: string; name: string; questions: (Question & { chosen: string | null; answerId: string; explanation: string })[] }[] | null;
+};
+
+// ── Parent: progress ───────────────────────────────────────
+
+export type WeekStats = { questions: number; correct: number; activeDays: number; xp: number; lastWeekXp: number };
+export type ChildMock = { title: string; exam: ExamBody; date: string; score: number | null; outOf: number; subjects: MockSubjectScore[]; rank: number | null; sat: number | null; percentile: number | null };
+export type ChildCard = {
+  studentId: string;
+  streak: number;
+  lastActive: string | null;
+  week: WeekStats;
+  lastMock: ChildMock | null;
+  nextMock: { title: string; exam: ExamBody; opensAt: string; closesAt: string; state: MockState; taken: boolean } | null;
+  exams: { exam: ExamBody; label: string; targetYear: number | null }[];
+};
+export type RatedTopic = { topicId: string; subject: string; topic: string; accuracy: number; answered: number; level: number; everyPaper: boolean };
+export type ChildProgress = ChildCard & {
+  xpTotal: number;
+  longestStreak: number;
+  subjects: { id: string; exam: ExamBody; name: string; topics: number; started: number; conquered: number; mastery: number; answered: number; accuracy: number | null }[];
+  weakTopics: RatedTopic[];
+  strongTopics: RatedTopic[];
+  mocks: ChildMock[];
 };

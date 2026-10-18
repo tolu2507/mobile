@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { toast } from '@/components/reacticx/molecules/Toast';
 import { Banner, Caption, Card, ChipGroup, FormScreen, GameButton, Label, PressableScale, ScreenHeader, toggle } from '@/components/ui';
 import { friendlyError } from '@/lib/api';
 import { palette, type RoleTheme } from '@/theme';
 import type { ChosenExam, ExamInfo } from '@/types/api';
+import { confirm } from '@/lib/confirm';
 import { useChooseExam, useDropExam, type ExamOwner } from '../api';
 
 const thisYear = new Date().getFullYear();
@@ -49,11 +50,10 @@ export function ExamSetupForm({ info, current, owner, theme, childName, onDone }
       },
     );
 
-  const remove = () =>
-    Alert.alert(`Stop ${info.label} prep?`, `This removes ${info.label} from ${who} exams. Practice history is kept.`, [
-      { text: 'Keep it', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => drop.mutate(info.exam, { onSuccess: onDone, onError: (e) => toast.error(friendlyError(e)) }) },
-    ]);
+  const remove = async () => {
+    if (!(await confirm({ title: `Stop ${info.label} prep?`, message: `This removes ${info.label} from ${who} exams. Practice history is kept.`, confirmLabel: 'Remove', cancelLabel: 'Keep it', destructive: true }))) return;
+    drop.mutate(info.exam, { onSuccess: onDone, onError: (e) => toast.error(friendlyError(e)) });
+  };
 
   const countLabel = exact ? `${picked.length - compulsory.length} of ${max - compulsory.length} chosen` : `${picked.length} of up to ${max}`;
 
