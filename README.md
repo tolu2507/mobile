@@ -171,7 +171,6 @@ What's still open is outside this app:
 - **School fee invoices:** parents will see and pay them here once schools can create them from the
   web dashboard (in progress).
 - **Tutor interviews and approval** happen in Overwatch (web). The tutor app already shows each step.
-- **Support email** on the Help screen (`src/app/settings/help.tsx`) is a placeholder until the real inbox is confirmed.
 - **Dark mode:** screens are light-only, so `app.json` pins `userInterfaceStyle` to `light`.
 
 ## Running on an Android phone (development build)
