@@ -5,7 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { mmkvStorage, PUSH_TOKEN_KEY, storage } from '@/lib/storage';
 import type { Membership, Role, Session, SessionUser } from '@/types/api';
 
-/** The mobile experiences. Other school staff and Overwatch use the web app. */
+/** The mobile experiences. School staff use the web app; Overwatch admins get the parent side, with their own test children. */
 export type AppRole = 'STUDENT' | 'PARENT' | 'TUCK_SHOP';
 const MOBILE_ROLES: AppRole[] = ['STUDENT', 'PARENT', 'TUCK_SHOP'];
 
@@ -25,6 +25,7 @@ type AuthState = {
 
 export function mobileRoles(memberships: Membership[] = []): AppRole[] {
   const roles = new Set<Role>(memberships.map((m) => m.role));
+  if (roles.has('PLATFORM_ADMIN')) roles.add('PARENT');
   return MOBILE_ROLES.filter((r) => roles.has(r));
 }
 

@@ -6,7 +6,7 @@ import { API_URL } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 import { palette } from '@/theme';
 
-/** Shown to school staff and Overwatch admins, who use the web app instead. */
+/** Shown to school staff, who use the web app instead. */
 export default function NoAccess() {
   const signOut = useAuth((s) => s.signOut);
   return (
@@ -15,7 +15,7 @@ export default function NoAccess() {
         <EmptyState
           icon="desktop-outline"
           title="Use Nexus on the web"
-          message="School staff and admin accounts manage Nexus from the web dashboard. The mobile app is for students, parents and tuck-shop staff."
+          message="School staff accounts manage Nexus from the web dashboard. The mobile app is for students, parents and tuck-shop staff."
           action={
             <GameButton
               label="Sign out"
