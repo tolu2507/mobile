@@ -6,11 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Caption, CardListSkeleton, EmptyState, ErrorState, Label, Pill, PressableScale, ProgressBar, Screen } from '@/components/ui';
 import { usePracticeMap } from '@/features/practice/api';
+import { NurseryMap } from '@/features/practice/components/NurseryMap';
+import { VoiceToggle } from '@/features/practice/components/NurseryRound';
 import { isPrimary, useStudentHome } from '@/features/student/api';
 import { palette, roles, type RoleTheme } from '@/theme';
 import type { PracticeMap, PracticeSubtopic } from '@/types/api';
 
-const EXAM_NAMES: Record<string, string> = { JAMB: 'JAMB', WAEC: 'WAEC', NECO: 'NECO', BECE: 'BECE', COMMON_ENTRANCE: 'Common Entrance' };
+const EXAM_NAMES: Record<string, string> = { JAMB: 'JAMB', WAEC: 'WAEC', NECO: 'NECO', BECE: 'BECE', COMMON_ENTRANCE: 'Common Entrance', PRIMARY: 'Class practice', NURSERY: 'Class practice' };
 const pct = (x: number) => Math.round(x * 100);
 
 /** One subject's map: topics, most tested first, each a path of subtopics climbed from level 1 to the boss round. */
@@ -39,8 +41,14 @@ export default function PracticeMapScreen() {
         <EmptyState
           icon="construct-outline"
           title={`${m.subject.name} is on its way`}
-          message={`We’re studying ${EXAM_NAMES[m.subject.exam]}’s past papers to build this subject’s topics and questions. It will appear here once it’s ready.`}
+          message={
+            m.subject.exam === 'PRIMARY' || m.subject.exam === 'NURSERY'
+              ? 'We’re still writing this subject’s questions. It will appear here once it’s ready.'
+              : `We’re studying ${EXAM_NAMES[m.subject.exam]}’s past papers to build this subject’s topics and questions. It will appear here once it’s ready.`
+          }
         />
+      ) : m.subject.exam === 'NURSERY' ? (
+        <NurseryMap m={m} theme={theme} />
       ) : (
         m.topics.map((t, i) => (
           <Animated.View key={t.id} entering={FadeInDown.delay(Math.min(i, 6) * 60)}>
@@ -54,7 +62,7 @@ export default function PracticeMapScreen() {
               </View>
               <View>
                 {t.subtopics.map((s, j) => (
-                  <Node key={s.id} s={s} last={j === t.subtopics.length - 1} theme={theme} subjectName={m.subject.name} />
+                  <Node key={s.id} s={s} last={j === t.subtopics.length - 1} theme={theme} subjectName={m.subject.name} nursery={m.subject.exam === 'NURSERY'} />
                 ))}
               </View>
             </View>
@@ -82,6 +90,7 @@ function Header({ m, theme }: { m: PracticeMap; theme: RoleTheme }) {
               <Text className="font-body-semibold text-[13px] text-white/80">{EXAM_NAMES[m.subject.exam]}</Text>
               <Text className="font-display text-[24px] leading-[28px] text-white">{m.subject.name}</Text>
             </View>
+            {m.subject.exam === 'NURSERY' ? <VoiceToggle /> : null}
           </View>
           {m.leaves ? (
             <View className="gap-2 rounded-[18px] bg-white/10 p-3.5">
@@ -106,7 +115,7 @@ function Header({ m, theme }: { m: PracticeMap; theme: RoleTheme }) {
 }
 
 /** One stop on the path: locked, in progress (level 1–5), or conquered. */
-function Node({ s, last, theme, subjectName }: { s: PracticeSubtopic; last: boolean; theme: RoleTheme; subjectName: string }) {
+function Node({ s, last, theme, subjectName, nursery }: { s: PracticeSubtopic; last: boolean; theme: RoleTheme; subjectName: string; nursery: boolean }) {
   const playable = s.unlocked && (s.fresh > 0 || s.answered > 0);
   const status = !s.unlocked
     ? 'Finish level 1 of the topic above to unlock'
@@ -115,7 +124,7 @@ function Node({ s, last, theme, subjectName }: { s: PracticeSubtopic; last: bool
       : s.level === 5
         ? 'Boss round next'
         : `Level ${s.level} of 5`;
-  const detail = !s.unlocked ? null : s.fresh ? `${s.fresh} new ${s.fresh === 1 ? 'question' : 'questions'}` : s.answered ? 'Reviews only for now' : 'Questions coming soon';
+  const detail = !s.unlocked ? null : s.fresh ? `${s.fresh} new ${s.fresh === 1 ? 'question' : 'questions'}` : s.answered ? (nursery ? 'Play again' : 'Reviews only for now') : 'Questions coming soon';
 
   const circle = s.bossBeaten ? palette.sun[400] : s.unlocked ? theme.accent : palette.ink[100];
   return (

@@ -9,16 +9,28 @@ import type { RoleTheme } from '@/theme';
 import type { ChosenExam, ExamInfo } from '@/types/api';
 import { useChooseExam, useDropExam, type ExamOwner } from '../api';
 
-const CLASSES = ['1', '2', '3', '4', '5'] as const;
+/** The exams that are class practice rather than a real exam, with the classes each covers. */
+export const CLASS_PRACTICE = {
+  PRIMARY: { stage: 'Primary', classes: ['1', '2', '3', '4', '5'] },
+  NURSERY: { stage: 'Nursery', classes: ['1', '2'] },
+} as const;
+export type ClassPracticeExam = keyof typeof CLASS_PRACTICE;
+export const isClassPractice = (exam: string): exam is ClassPracticeExam => exam in CLASS_PRACTICE;
 
-/** The class whose subjects these are: "primary-3-mathematics" → "3". */
-export const classOf = (slug: string) => slug.match(/^primary-(\d)-/)?.[1] ?? null;
-/** Primary 1–5 from a grade name such as "Primary 3"; null for anything else. */
-export const classFromGrade = (grade: string | null | undefined) => grade?.match(/Primary ([1-5])\b/)?.[1] ?? null;
+/** The class whose subjects these are: "primary-3-mathematics" → "3", "nursery-1-numbers" → "1". */
+export const classOf = (slug: string) => slug.match(/^(?:primary|nursery)-(\d)-/)?.[1] ?? null;
+/** The class number from a grade name such as "Primary 3" or "Nursery 1"; null if it isn't one this practice covers. */
+export function classFromGrade(grade: string | null | undefined, exam: ClassPracticeExam = 'PRIMARY') {
+  const { stage, classes } = CLASS_PRACTICE[exam];
+  const n = grade?.match(new RegExp(`${stage} (\\d)\\b`))?.[1];
+  return n && (classes as readonly string[]).includes(n) ? n : null;
+}
 
-/** Class practice has no subject choice: pick the class and its Mathematics, English and Basic Science come with it. */
+/** Class practice has no subject choice: pick the class and its subjects come with it. */
 export function ClassPracticeForm({ info, current, owner, theme, childName, grade, onDone }: { info: ExamInfo; current?: ChosenExam; owner: ExamOwner; theme: RoleTheme; childName?: string; grade?: string | null; onDone: () => void }) {
-  const [cls, setCls] = useState<string | null>(() => (current?.subjects[0] ? classOf(current.subjects[0].slug) : classFromGrade(grade)));
+  const exam = isClassPractice(info.exam) ? info.exam : 'PRIMARY';
+  const { stage, classes } = CLASS_PRACTICE[exam];
+  const [cls, setCls] = useState<string | null>(() => (current?.subjects[0] ? classOf(current.subjects[0].slug) : classFromGrade(grade, exam)));
   const choose = useChooseExam(owner);
   const drop = useDropExam(owner);
   const subjects = info.subjects.filter((s) => cls && classOf(s.slug) === cls);
@@ -29,7 +41,7 @@ export function ClassPracticeForm({ info, current, owner, theme, childName, grad
       { exam: info.exam, subjectIds: subjects.map((s) => s.id), targetYear: null },
       {
         onSuccess: () => {
-          toast.success(`Primary ${cls} practice is ready`);
+          toast.success(`${stage} ${cls} practice is ready`);
           onDone();
         },
       },
@@ -41,8 +53,8 @@ export function ClassPracticeForm({ info, current, owner, theme, childName, grad
 
   return (
     <FormScreen background={theme.bg} footer={<GameButton label={current ? 'Save changes' : 'Start class practice'} color={theme.accent} shadowColor={theme.shadow} disabled={!subjects.length} loading={choose.isPending} onPress={save} />}>
-      <ScreenHeader title="Class practice" subtitle={`Fun practice that follows ${childName ? `${childName}’s` : 'your'} class at school. No exam, no timer.`} />
-      <ChipGroup label={`Which class ${childName ? `is ${childName}` : 'are you'} in?`} options={CLASSES.map((c) => ({ value: c, label: `Primary ${c}` }))} value={cls} onChange={setCls} accent={theme.accent} />
+      <ScreenHeader title="Class practice" subtitle={exam === 'NURSERY' ? `Picture games that talk, following ${childName ? `${childName}’s` : 'your'} class. No reading needed, no timer.` : `Fun practice that follows ${childName ? `${childName}’s` : 'your'} class at school. No exam, no timer.`} />
+      <ChipGroup label={`Which class ${childName ? `is ${childName}` : 'are you'} in?`} options={classes.map((c) => ({ value: c, label: `${stage} ${c}` }))} value={cls} onChange={setCls} accent={theme.accent} />
       {subjects.length ? (
         <Card className="gap-2">
           <Label>What {who} will practise</Label>

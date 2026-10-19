@@ -23,7 +23,7 @@ export type SessionUser = {
 export type Session = { accessToken: string; refreshToken: string; user: SessionUser };
 
 export type Catalog = {
-  levels: { level: Exclude<EducationLevel, 'NURSERY'>; label: string; grades: string[]; subjects: string[] }[];
+  levels: { level: EducationLevel; label: string; grades: string[]; subjects: string[] }[];
   exams: string[];
 };
 
@@ -94,7 +94,7 @@ export type PlayableQuiz = {
 
 // ── Exam prep ─────────────────────────────────────────────
 
-export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE' | 'PRIMARY';
+export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE' | 'PRIMARY' | 'NURSERY';
 export type ExamSubject = { id: string; slug: string; name: string; compulsory: boolean };
 
 /** One exam from GET /exams: its subjects and the rules for choosing them. */
@@ -187,8 +187,9 @@ export type PracticeMap = {
   reviewsDue: number;
   topics: { id: string; name: string; weight: number | null; yearsSeen: number | null; hot: boolean; subtopics: PracticeSubtopic[] }[];
 };
-export type PracticeQuestion = Question & { difficulty: number; review: boolean };
-export type PracticeRound = { topicId: string; level: number; boss: boolean; questions: PracticeQuestion[] };
+/** Nursery rounds also carry each answer and its explanation, so the app can respond the moment a child taps. */
+export type PracticeQuestion = Question & { difficulty: number; review: boolean; answerId?: string; explanation?: string };
+export type PracticeRound = { topicId: string; level: number; boss: boolean; nursery: boolean; questions: PracticeQuestion[] };
 export type PracticeResult = {
   counted: number;
   correct: number;

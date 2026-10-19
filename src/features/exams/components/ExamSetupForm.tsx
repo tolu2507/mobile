@@ -9,14 +9,14 @@ import { palette, type RoleTheme } from '@/theme';
 import type { ChosenExam, ExamInfo } from '@/types/api';
 import { confirm } from '@/lib/confirm';
 import { useChooseExam, useDropExam, type ExamOwner } from '../api';
-import { ClassPracticeForm } from './ClassPracticeForm';
+import { ClassPracticeForm, isClassPractice } from './ClassPracticeForm';
 
 const thisYear = new Date().getFullYear();
 const YEARS = [0, 1, 2, 3].map((n) => String(thisYear + n));
 
 /** Pick the subject combination for one exam. `childName` is set when a parent does it for a child. */
 export function ExamSetupForm(props: { info: ExamInfo; current?: ChosenExam; owner: ExamOwner; theme: RoleTheme; childName?: string; grade?: string | null; onDone: () => void }) {
-  return props.info.exam === 'PRIMARY' ? <ClassPracticeForm {...props} /> : <SubjectChoiceForm {...props} />;
+  return isClassPractice(props.info.exam) ? <ClassPracticeForm {...props} /> : <SubjectChoiceForm {...props} />;
 }
 
 function SubjectChoiceForm({ info, current, owner, theme, childName, onDone }: { info: ExamInfo; current?: ChosenExam; owner: ExamOwner; theme: RoleTheme; childName?: string; onDone: () => void }) {

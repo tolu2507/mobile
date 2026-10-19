@@ -12,6 +12,7 @@ import { QuizPlayer, QuizProgress } from '@/components/QuizPlayer';
 import { RewardCard } from '@/components/RewardCard';
 import { Body, CardListSkeleton, ChipGroup, EmptyState, GameButton, Pill, PressableScale, Screen } from '@/components/ui';
 import { REPORT_REASONS, usePracticeRound, useReportQuestion, useSubmitRound } from '@/features/practice/api';
+import { NurseryPlayer, NurseryResults } from '@/features/practice/components/NurseryRound';
 import { isPrimary, useStudentHome } from '@/features/student/api';
 import { friendlyError } from '@/lib/api';
 import { fonts, palette, roles, type RoleTheme } from '@/theme';
@@ -45,7 +46,10 @@ export default function PracticeRoundScreen() {
       submit.reset();
       void round.refetch();
     };
-    return <Results result={submit.data} questions={round.data.questions} theme={theme} onNext={next} />;
+    return round.data.nursery ? <NurseryResults result={submit.data} theme={theme} onNext={next} /> : <Results result={submit.data} questions={round.data.questions} theme={theme} onNext={next} />;
+  }
+  if (round.data.nursery) {
+    return <NurseryPlayer key={round.dataUpdatedAt} questions={round.data.questions} theme={theme} submitting={submit.isPending} error={submit.isError ? friendlyError(submit.error) : null} onSubmit={(answers) => submit.mutate(answers)} />;
   }
 
   const { level, boss, questions } = round.data;

@@ -8,11 +8,11 @@ import { friendlyError } from '@/lib/api';
 import { palette, type RoleTheme } from '@/theme';
 import type { ChosenExam, EducationLevel } from '@/types/api';
 import { examsForLevel, useChooseExam, useExamCatalog, useMyExams } from '../api';
-import { classFromGrade, classOf } from './ClassPracticeForm';
+import { CLASS_PRACTICE, classFromGrade, classOf, type ClassPracticeExam } from './ClassPracticeForm';
 
 /**
  * Student home: what they're practising for, or a nudge to start.
- * Primary 1–5 get class practice for their own class (and Common Entrance from Primary 4);
+ * Nursery 1–2 and Primary 1–5 get class practice for their own class (and Common Entrance from Primary 4);
  * Primary 6 and secondary get their exams. Hidden for levels with nothing to practise.
  */
 export function ExamPrepCard({ level, grade, theme }: { level: EducationLevel; grade: string | null; theme: RoleTheme }) {
@@ -21,16 +21,17 @@ export function ExamPrepCard({ level, grade, theme }: { level: EducationLevel; g
   if (catalog.isPending || mine.isPending) return <Skeleton height={84} radius={22} />;
   if (catalog.error || mine.error) return null;
 
-  const cls = level === 'PRIMARY' ? classFromGrade(grade) : null;
-  if (cls) {
+  const practice: ClassPracticeExam | null = level === 'NURSERY' || level === 'PRIMARY' ? level : null;
+  const cls = practice ? classFromGrade(grade, practice) : null;
+  if (practice && cls) {
     return (
       <View className="gap-3">
-        <ClassPracticeCard cls={cls} theme={theme} />
-        {Number(cls) >= 4 ? <ExamCard chosen={mine.data.filter((c) => c.exam === 'COMMON_ENTRANCE')} primary theme={theme} /> : null}
+        <ClassPracticeCard exam={practice} cls={cls} theme={theme} />
+        {practice === 'PRIMARY' && Number(cls) >= 4 ? <ExamCard chosen={mine.data.filter((c) => c.exam === 'COMMON_ENTRANCE')} primary theme={theme} /> : null}
       </View>
     );
   }
-  if (!examsForLevel(catalog.data, level).length) return null;
+  if (level === 'NURSERY' || !examsForLevel(catalog.data, level).length) return null;
   return <ExamCard chosen={mine.data} primary={level === 'PRIMARY'} theme={theme} />;
 }
 
@@ -54,21 +55,23 @@ function ExamCard({ chosen, primary, theme }: { chosen: ChosenExam[]; primary: b
 }
 
 /** One tap to start (or move up) practice for the child's own class. */
-function ClassPracticeCard({ cls, theme }: { cls: string; theme: RoleTheme }) {
+function ClassPracticeCard({ exam, cls, theme }: { exam: ClassPracticeExam; cls: string; theme: RoleTheme }) {
   const catalog = useExamCatalog();
   const mine = useMyExams();
   const choose = useChooseExam();
-  const current = mine.data?.find((c) => c.exam === 'PRIMARY');
+  const current = mine.data?.find((c) => c.exam === exam);
   const currentCls = current?.subjects[0] ? classOf(current.subjects[0].slug) : null;
   const ready = currentCls === cls;
-  const subjects = catalog.data?.find((e) => e.exam === 'PRIMARY')?.subjects.filter((s) => classOf(s.slug) === cls) ?? [];
+  const subjects = catalog.data?.find((e) => e.exam === exam)?.subjects.filter((s) => classOf(s.slug) === cls) ?? [];
+  const name = `${CLASS_PRACTICE[exam].stage} ${cls}`;
+  const nursery = exam === 'NURSERY';
 
   const start = () =>
     choose.mutate(
-      { exam: 'PRIMARY', subjectIds: subjects.map((s) => s.id), targetYear: null },
+      { exam, subjectIds: subjects.map((s) => s.id), targetYear: null },
       {
         onSuccess: () => {
-          toast.success(`Primary ${cls} practice is ready`);
+          toast.success(`${name} practice is ready`);
           router.push('/student/practice');
         },
         onError: (e) => toast.error(friendlyError(e)),
@@ -78,8 +81,16 @@ function ClassPracticeCard({ cls, theme }: { cls: string; theme: RoleTheme }) {
   return (
     <Tile
       onPress={ready ? () => router.push('/student/practice') : start}
-      title={ready ? `Primary ${cls} practice` : currentCls ? `Move up to Primary ${cls} practice` : `Start Primary ${cls} practice`}
-      detail={ready ? 'Maths, English and Basic Science. Tap to play.' : 'Fun questions from your class at school, easy to hard.'}
+      title={ready ? `${name} practice` : currentCls ? `Move up to ${name} practice` : `Start ${name} practice`}
+      detail={
+        nursery
+          ? ready
+            ? 'Numbers, letters and my world. Tap to play.'
+            : 'Picture games that talk to you, easy to hard.'
+          : ready
+            ? 'Maths, English and Basic Science. Tap to play.'
+            : 'Fun questions from your class at school, easy to hard.'
+      }
       done={ready}
       loading={choose.isPending}
       theme={theme}
