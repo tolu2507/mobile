@@ -50,3 +50,4 @@ example
 # Firebase service-account keys (secret; upload to EAS, never commit)
 *firebase-adminsdk*.json
 service-account*.json
+.vercel
