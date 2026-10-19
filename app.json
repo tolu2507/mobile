@@ -8,7 +8,7 @@
     "scheme": "nexus",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.tolulopeb.nexus"
     },
     "android": {
@@ -33,7 +33,7 @@
         {
           "backgroundColor": "#5B3DF5",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 140
         }
       ],
       "expo-font",

@@ -16,8 +16,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
 
+import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { ToastProvider } from '@/components/reacticx/molecules/Toast';
 import { usePushNotifications } from '@/lib/push';
 import { queryClient } from '@/lib/query-client';
@@ -38,10 +38,6 @@ export default function RootLayout() {
   const ready = fontsLoaded; // MMKV restores the session synchronously, so only fonts need waiting for
   usePushNotifications(ready);
 
-  useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
-
   if (!ready) return null;
 
   return (
@@ -54,6 +50,8 @@ export default function RootLayout() {
       >
         <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
+        {/* Hides the native splash itself once it's on screen, then plays and fades away. */}
+        <AnimatedSplash />
       </ToastProvider>
     </QueryClientProvider>
   );

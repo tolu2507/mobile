@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import Animated, { Easing, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LogoMark } from '@/components/Logo';
 import { GameButton } from '@/components/ui';
 import { palette } from '@/theme';
 
@@ -35,8 +35,11 @@ export default function Welcome() {
         <View className="flex-1 justify-end gap-8 px-6 pb-6">
           <Animated.View entering={FadeInDown.duration(600)}>
             <View className="gap-4">
-              <View className="h-14 w-14 items-center justify-center rounded-2xl bg-white">
-                <Ionicons name="sparkles" size={28} color={palette.violet[500]} />
+              <View className="flex-row items-center gap-3">
+                <View className="rounded-[20px] border-[3px] border-white/90">
+                  <LogoMark size={56} />
+                </View>
+                <Text className="font-display text-[30px] tracking-tight text-white">Nexus</Text>
               </View>
               <Text accessibilityRole="header" className="font-display text-[44px] leading-[46px] text-white">
                 Learning that feels like play.
