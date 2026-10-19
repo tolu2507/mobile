@@ -19,7 +19,7 @@ export type MathNode =
 export type Piece = { kind: 'word'; s: string; glue: boolean; italic?: boolean } | { kind: 'math'; nodes: MathNode[]; glue: boolean } | { kind: 'break' };
 
 const SYMBOLS: Record<string, string> = {
-  times: '×', div: '÷', pm: '±', mp: '∓', cdot: '·', ast: '∗', le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠',
+  times: '×', div: '÷', pm: '±', mp: '∓', cdot: '·', ast: '∗', oplus: '⊕', otimes: '⊗', odot: '⊙', star: '⋆', diamond: '◇', bullet: '•', circledast: '⊛', le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠',
   approx: '≈', equiv: '≡', sim: '∼', cong: '≅', propto: '∝', infty: '∞', angle: '∠', triangle: '△', degree: '°', circ: '°',
   therefore: '∴', because: '∵', to: '→', rightarrow: '→', leftarrow: '←', Rightarrow: '⇒', Leftrightarrow: '⇔', iff: '⇔', rightleftharpoons: '⇌', leftrightharpoons: '⇋', rightleftarrows: '⇄',
   implies: '⇒', in: '∈', notin: '∉', ni: '∋', subset: '⊂', subseteq: '⊆', supset: '⊃', cup: '∪', cap: '∩', emptyset: '∅',
@@ -31,7 +31,7 @@ const SYMBOLS: Record<string, string> = {
   Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω', lbrace: '{', rbrace: '}', langle: '⟨', rangle: '⟩', vert: '|', lvert: '|',
   rvert: '|', percent: '%', quad: '  ', qquad: '    ', colon: ':',
 };
-const OPERATORS = new Set(['+', '−', '=', '×', '÷', '±', '∓', '<', '>', '≤', '≥', '≠', '≈', '≡', '→', '⇌', '⇒', '⇔', '∈', '∉', '⊂', '⊆', '∪', '∩', '∼', '≅', '∝', '·']);
+const OPERATORS = new Set(['+', '−', '=', '×', '÷', '±', '∓', '<', '>', '≤', '≥', '≠', '≈', '≡', '→', '⇌', '⇒', '⇔', '∈', '∉', '⊂', '⊆', '∪', '∩', '∼', '≅', '∝', '·', '⊕', '⊗', '⊙', '⋆', '◇', '•']);
 const FUNCTIONS = new Set(['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'cosec', 'log', 'ln', 'exp', 'lim', 'max', 'min', 'det', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'mod', 'gcd']);
 const RAW_TEXT = new Set(['text', 'textrm', 'mathrm', 'mbox', 'operatorname', 'textit', 'mathit', 'textnormal']);
 const BOLD = new Set(['mathbf', 'textbf', 'boldsymbol', 'bm']);
