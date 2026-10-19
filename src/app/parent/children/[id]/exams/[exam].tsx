@@ -21,5 +21,5 @@ export default function ChildExamSetup() {
   const info = catalog.data.find((e) => e.exam === exam);
   if (!child || !info) return <Screen background={theme.bg}><ScreenHeader title="Exam prep" /><EmptyState title="Not found" message="Go back and choose a child and exam from the list." /></Screen>;
 
-  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{ studentId: child.id }} theme={theme} childName={child.firstName} onDone={() => router.back()} />;
+  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{ studentId: child.id }} theme={theme} childName={child.firstName} grade={child.className} onDone={() => router.back()} />;
 }

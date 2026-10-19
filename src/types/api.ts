@@ -94,7 +94,7 @@ export type PlayableQuiz = {
 
 // ── Exam prep ─────────────────────────────────────────────
 
-export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE';
+export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE' | 'PRIMARY';
 export type ExamSubject = { id: string; slug: string; name: string; compulsory: boolean };
 
 /** One exam from GET /exams: its subjects and the rules for choosing them. */
