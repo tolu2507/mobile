@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { AppState, Modal, Pressable, Text, View } from 'react-native';
@@ -15,6 +16,8 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Confetti, CountUp } from '@/components/game';
+import { playSound } from '@/lib/sounds';
+import { useVoice } from '@/lib/speech';
 import { palette } from '@/theme';
 import type { Badge } from '@/types/api';
 import { useBadges, useMarkStickersSeen, useStudentHome } from '../api';
@@ -69,6 +72,7 @@ function Celebration({ b, next, showCoins, more, onDone }: { b: Badge; next: Bad
   const [bursts, setBursts] = useState(0);
   const [canSkip, setCanSkip] = useState(reduced);
   const [canCollect, setCanCollect] = useState(reduced);
+  const { muted, toggle } = useVoice();
 
   const backdrop = useSharedValue(0);
   const rays = useSharedValue(0);
@@ -79,7 +83,10 @@ function Celebration({ b, next, showCoins, more, onDone }: { b: Badge; next: Bad
 
   useEffect(() => {
     backdrop.set(withTiming(1, { duration: at(400) }));
-    if (reduced) return;
+    if (reduced) {
+      playSound('chime');
+      return;
+    }
     rays.set(withRepeat(withTiming(360, { duration: 14_000, easing: Easing.linear }), -1));
     glow.set(withDelay(T.burst, withRepeat(withSequence(withTiming(1, { duration: 900 }), withTiming(0.55, { duration: 900 })), -1, true)));
     scale.set(withDelay(T.sticker, withSequence(withTiming(1.25, { duration: 900, easing: Easing.out(Easing.back(2)) }), withSpring(1, { damping: 9, stiffness: 140 }))));
@@ -87,8 +94,11 @@ function Celebration({ b, next, showCoins, more, onDone }: { b: Badge; next: Bad
     shine.set(withDelay(T.burst + 200, withSequence(withTiming(1, { duration: 700 }), withDelay(3000, withSequence(withTiming(-1, { duration: 0 }), withTiming(1, { duration: 700 }))))));
 
     const timers = [
+      setTimeout(() => playSound('whoosh'), T.sticker),
+      ...(showCoins ? [setTimeout(() => playSound('coin'), T.coins + 250)] : []),
       setTimeout(() => {
         setBursts(1);
+        playSound('chime');
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       }, T.burst),
       setTimeout(() => setCanSkip(true), T.skip),
@@ -97,6 +107,7 @@ function Celebration({ b, next, showCoins, more, onDone }: { b: Badge; next: Bad
         ? [
             setTimeout(() => {
               setBursts(2);
+              playSound('fanfare');
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
             }, T.second),
           ]
@@ -123,7 +134,10 @@ function Celebration({ b, next, showCoins, more, onDone }: { b: Badge; next: Bad
     <Modal visible transparent statusBarTranslucent animationType="none" onRequestClose={canSkip ? collect : () => {}}>
       <Animated.View style={[{ flex: 1, backgroundColor: r.backdrop }, backdropStyle]}>
         <SafeAreaView style={{ flex: 1 }}>
-          <View className="h-12 flex-row items-center justify-end px-4">
+          <View className="h-12 flex-row items-center justify-between px-4">
+            <Pressable accessibilityRole="button" accessibilityLabel={muted ? 'Turn sounds on' : 'Turn sounds off'} onPress={toggle} hitSlop={12} className="h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.14)' }}>
+              <Ionicons name={muted ? 'volume-mute' : 'volume-high'} size={18} color="#FFFFFF" />
+            </Pressable>
             {canSkip && !canCollect ? (
               <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={collect} hitSlop={12} className="rounded-full px-3 py-1.5" style={{ backgroundColor: 'rgba(255,255,255,0.14)' }}>
                 <Text className="font-body-bold text-[13px] text-white">Skip</Text>

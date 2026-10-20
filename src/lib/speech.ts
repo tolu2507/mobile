@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mmkvStorage } from './storage';
 
-/** Whether the app reads nursery questions aloud. Remembered on this phone. */
+/** Whether the app makes sound: the nursery voice and sticker sound effects. Remembered on this phone. */
 export const useVoice = create<{ muted: boolean; toggle: () => void }>()(
   persist(
     (set) => ({
