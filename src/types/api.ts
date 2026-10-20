@@ -106,6 +106,9 @@ export type Badge = {
   progress: { current: number; target: number | null } | null;
 };
 
+/** For a collected sticker: how rare it is and where the child's collection ranks. Counts only. */
+export type StickerStats = { owners: number; collectors: number; percent: number; unlockedOrder: number; myStickers: number; collectorRank: number };
+
 export type PlayableQuiz = {
   id: string;
   kind: 'ACTIVITY' | 'LESSON_QUIZ';

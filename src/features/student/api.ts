@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { Badge, LeagueView, PlayableQuiz, PlayResult, StudentHome, WalletSummary } from '@/types/api';
+import type { Badge, LeagueView, PlayableQuiz, PlayResult, StickerStats, StudentHome, WalletSummary } from '@/types/api';
 
 export function useStudentHome() {
   return useQuery({ queryKey: ['student', 'home'], queryFn: async () => (await api.get<StudentHome>('/me/student/home')).data });
@@ -13,6 +13,10 @@ export function useLeague() {
 
 export function useBadges() {
   return useQuery({ queryKey: ['student', 'badges'], queryFn: async () => (await api.get<Badge[]>('/me/student/badges')).data });
+}
+
+export function useStickerStats(badgeId: string) {
+  return useQuery({ queryKey: ['student', 'badges', badgeId, 'stats'], queryFn: async () => (await api.get<StickerStats>(`/me/student/badges/${badgeId}/stats`)).data });
 }
 
 /** After the unlock celebration plays, so it never plays twice. */

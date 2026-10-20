@@ -1,10 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
-import { Caption, CardListSkeleton, ErrorState } from '@/components/ui';
+import { Caption, CardListSkeleton, ErrorState, PressableScale } from '@/components/ui';
 import { palette, type RoleTheme } from '@/theme';
 import type { Badge, StickerRarity } from '@/types/api';
 import { useBadges, useStudentHome } from '../api';
+import { useStickerReplay } from '../stickerReplay';
 import { CoinBar } from './CoinBar';
 import { Coin, RARITY, RarityPill, StickerFace, StickerProgress } from './Sticker';
 
@@ -49,47 +51,61 @@ export function StickerBook({ theme }: { theme: RoleTheme }) {
   );
 }
 
+/** Collected stickers can be tapped to watch their unlock again, with their perks. */
 function StickerTile({ b, i, coins }: { b: Badge; i: number; coins: boolean }) {
   const r = RARITY[b.rarity];
+  const replay = useStickerReplay((s) => s.replay);
   return (
-    <Animated.View
-      entering={ZoomIn.delay(Math.min(i, 8) * 40).springify()}
-      accessibilityLabel={`${b.name}, ${r.label}. ${b.description}.${b.earned ? ' Collected.' : b.progress?.target ? ` ${b.progress.current} of ${b.progress.target}.` : ' Not collected yet.'}`}
-      style={{
-        width: '31%',
-        minHeight: 168,
-        borderRadius: 22,
-        backgroundColor: palette.white,
-        alignItems: 'center',
-        gap: 6,
-        paddingVertical: 12,
-        paddingHorizontal: 6,
-        borderWidth: b.earned ? 2 : 0,
-        borderColor: b.earned ? r.ring : 'transparent',
-      }}
-    >
-      <StickerFace icon={b.icon} rarity={b.rarity} earned={b.earned} size={58} />
-      <Text numberOfLines={2} className="text-center font-body-bold text-[13px] leading-[17px] text-ink">
-        {b.name}
-      </Text>
-      <Text numberOfLines={3} className="text-center font-body text-[11px] leading-[14px] text-ink-500">
-        {b.description}
-      </Text>
-      <View className="mt-auto w-full items-center gap-1">
-        {b.earned ? (
-          <Text className="font-body-semibold text-[11px]" style={{ color: r.text }}>
-            Collected {b.awardedAt ? new Date(b.awardedAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
-          </Text>
-        ) : (
-          <StickerProgress b={b} color={r.face} />
-        )}
-        {coins && !b.earned ? (
-          <View className="flex-row items-center gap-1">
-            <Coin size={12} />
-            <Text className="font-body-bold text-[11px] text-sun-800">+{b.coins.toLocaleString()}</Text>
-          </View>
-        ) : null}
-      </View>
+    <Animated.View entering={ZoomIn.delay(Math.min(i, 8) * 40).springify()} style={{ width: '31%' }}>
+      <PressableScale
+        disabled={!b.earned}
+        onPress={() => replay(b)}
+        accessibilityRole={b.earned ? 'button' : undefined}
+        accessibilityLabel={`${b.name}, ${r.label}. ${b.description}.${b.earned ? ' Collected. Tap to watch it again.' : b.progress?.target ? ` ${b.progress.current} of ${b.progress.target}.` : ' Not collected yet.'}`}
+        style={{
+          width: '100%',
+          minHeight: 168,
+          borderRadius: 22,
+          backgroundColor: palette.white,
+          alignItems: 'center',
+          gap: 6,
+          paddingVertical: 12,
+          paddingHorizontal: 6,
+          borderWidth: b.earned ? 2 : 0,
+          borderColor: b.earned ? r.ring : 'transparent',
+        }}
+      >
+        <StickerFace icon={b.icon} rarity={b.rarity} earned={b.earned} size={58} />
+        <Text numberOfLines={2} className="text-center font-body-bold text-[13px] leading-[17px] text-ink">
+          {b.name}
+        </Text>
+        <Text numberOfLines={3} className="text-center font-body text-[11px] leading-[14px] text-ink-500">
+          {b.description}
+        </Text>
+        <View className="mt-auto w-full items-center gap-1">
+          {b.earned ? (
+            <>
+              <Text className="font-body-semibold text-[11px]" style={{ color: r.text }}>
+                Collected {b.awardedAt ? new Date(b.awardedAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
+              </Text>
+              <View className="flex-row items-center gap-1">
+                <Ionicons name="play-circle" size={13} color={r.face} />
+                <Text className="font-body-bold text-[11px]" style={{ color: r.face }}>
+                  Replay
+                </Text>
+              </View>
+            </>
+          ) : (
+            <StickerProgress b={b} color={r.face} />
+          )}
+          {coins && !b.earned ? (
+            <View className="flex-row items-center gap-1">
+              <Coin size={12} />
+              <Text className="font-body-bold text-[11px] text-sun-800">+{b.coins.toLocaleString()}</Text>
+            </View>
+          ) : null}
+        </View>
+      </PressableScale>
     </Animated.View>
   );
 }
