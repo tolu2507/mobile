@@ -13,8 +13,11 @@ import { Body, CardListSkeleton, EmptyState, ErrorState, GameButton, PressableSc
 import { isPrimary, usePlayable, useStudentHome, useSubmitPlay } from '@/features/student/api';
 import { friendlyError } from '@/lib/api';
 import { palette, roles } from '@/theme';
-import type { PlayResult, Question } from '@/types/api';
 import { StickerFace } from '@/features/student/components/Sticker';
+import type { PlayResult, Quest, Question } from '@/types/api';
+
+/** Back to the home screen, even when there's nothing to go back to (the web after a refresh, a link from a notification). */
+const goHome = () => (router.canGoBack() ? router.back() : router.replace('/student'));
 
 export default function Play() {
   const params = useLocalSearchParams<{ kind: string; id: string }>();
@@ -24,6 +27,8 @@ export default function Play() {
   const theme = primary ? roles.studentPrimary : roles.student;
   const quiz = usePlayable(kind, params.id);
   const submit = useSubmitPlay(kind, params.id);
+  // "Next quest" swaps this screen for the next one; start it fresh.
+  useEffect(() => submit.reset(), [params.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (quiz.isPending)
     return (
@@ -37,7 +42,11 @@ export default function Play() {
         <ErrorState error={quiz.error} onRetry={quiz.refetch} color={theme.accent} />
       </Screen>
     );
-  if (submit.data) return <Results result={submit.data} questions={quiz.data.questions} accent={theme.accent} shadow={theme.shadow} bg={theme.bg} primary={primary} />;
+  if (submit.data) {
+    // The next quest of the day (home refreshes after every finished quest), so a child can keep going or stop.
+    const next = home.data?.quests.find((q) => q.progress < 1 && q.id !== params.id) ?? null;
+    return <Results result={submit.data} questions={quiz.data.questions} accent={theme.accent} shadow={theme.shadow} bg={theme.bg} primary={primary} next={next} />;
+  }
   if (quiz.data.status === 'COMPLETED') {
     return (
       <Screen background={theme.bg}>
@@ -45,7 +54,7 @@ export default function Play() {
           icon="checkmark-done-outline"
           title="You already did this one"
           message="Great work! Your teacher and parent can see your score."
-          action={<GameButton label="Back home" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.back()} />}
+          action={<GameButton label="Back home" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={goHome} />}
         />
       </Screen>
     );
@@ -69,7 +78,7 @@ export default function Play() {
               <View className="flex-row items-center justify-between">
                 <PressableScale
                   accessibilityLabel="Stop playing"
-                  onPress={() => router.back()}
+                  onPress={goHome}
                   style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Ionicons name="close" size={22} color="#FFFFFF" />
@@ -91,7 +100,7 @@ export default function Play() {
 
 const BEAT = 450; // ms between reward reveals
 
-function Results({ result, questions, accent, shadow, bg, primary }: { result: PlayResult; questions: Question[]; accent: string; shadow: string; bg: string; primary: boolean }) {
+function Results({ result, questions, accent, shadow, bg, primary, next }: { result: PlayResult; questions: Question[]; accent: string; shadow: string; bg: string; primary: boolean; next: Quest | null }) {
   const pct = Math.round(result.score * 100);
   const great = pct >= 80;
   const rewards = result.rewards;
@@ -206,7 +215,28 @@ function Results({ result, questions, accent, shadow, bg, primary }: { result: P
           })}
         </View>
 
-        <GameButton label="Back home" color={accent} shadowColor={shadow} size="lg" onPress={() => router.back()} />
+        {next ? (
+          <View className="gap-2.5">
+            <GameButton
+              label={`Next quest: ${next.title}`}
+              color={accent}
+              shadowColor={shadow}
+              size="lg"
+              icon={<Ionicons name="play" size={18} color="#FFFFFF" />}
+              onPress={() => router.replace({ pathname: '/student/play/[kind]/[id]', params: { kind: next.kind, id: next.id } })}
+            />
+            <GameButton label="Stop for now" variant="white" color={accent} onPress={goHome} />
+          </View>
+        ) : (
+          <View className="gap-2.5">
+            <View className="items-center gap-1 rounded-[20px] bg-mint-50 p-4">
+              <Text className="text-center font-display text-[18px] text-mint-800">That’s all of today’s quests!</Text>
+              <Text className="text-center font-body text-[14px] text-mint-800">Keep going with topic practice, or come back tomorrow for new ones.</Text>
+            </View>
+            <GameButton label="Practise a topic" color={accent} shadowColor={shadow} size="lg" icon={<Ionicons name="school" size={18} color="#FFFFFF" />} onPress={() => router.replace('/student/practice')} />
+            <GameButton label="Back home" variant="white" color={accent} onPress={goHome} />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

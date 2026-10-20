@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
-import { AppState, Modal, Pressable, Text, View } from 'react-native';
+import { AppState, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -24,7 +24,9 @@ import { useBadges, useMarkStickersSeen, useStickerStats, useStudentHome } from 
 import { useStickerReplay } from '../stickerReplay';
 import { Coin, RARITY, RarityPill, StickerFace, nextUp } from './Sticker';
 
-const SIZE = 168;
+const SIZE = 150;
+/** The space the sticker takes in the layout. The rays spin out past it (they're decoration, not layout). */
+const STAGE = SIZE * 1.45;
 
 /** When each part of the unlock appears (ms). The whole thing runs about 10 seconds, then waits for "Collect!". */
 const T = { backdrop: 0, sticker: 350, burst: 1400, title: 1800, name: 2500, about: 3000, coins: 3700, second: 5200, teaser: 6300, skip: 4000, collect: 8600 };
@@ -153,15 +155,16 @@ function Celebration({ b, next, showCoins, more, replay = false, onDone }: { b: 
             ) : null}
           </View>
 
-          <View className="flex-1 items-center justify-center px-6" accessibilityLiveRegion="polite">
+          {/* Scrolls on small screens, so the Collect button below is always on screen. */}
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 12 }} accessibilityLiveRegion="polite">
             {/* Light rays and glow behind the sticker */}
-            <View style={{ width: SIZE * 2.4, height: SIZE * 2.4, alignItems: 'center', justifyContent: 'center' }}>
-              <Animated.View style={[{ position: 'absolute', width: SIZE * 2.4, height: SIZE * 2.4, alignItems: 'center', justifyContent: 'center' }, raysStyle]}>
+            <View style={{ width: STAGE, height: STAGE, alignItems: 'center', justifyContent: 'center' }}>
+              <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: SIZE * 2.4, height: SIZE * 2.4, alignItems: 'center', justifyContent: 'center' }, raysStyle]}>
                 {Array.from({ length: 12 }, (_, i) => (
                   <View key={i} style={{ position: 'absolute', width: 22, height: SIZE * 2.4, borderRadius: 11, backgroundColor: r.glow, transform: [{ rotate: `${i * 15}deg` }] }} />
                 ))}
               </Animated.View>
-              <Animated.View style={[{ position: 'absolute', width: SIZE * 1.5, height: SIZE * 1.5, borderRadius: SIZE, backgroundColor: r.glow }, glowStyle]} />
+              <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: SIZE * 1.5, height: SIZE * 1.5, borderRadius: SIZE, backgroundColor: r.glow }, glowStyle]} />
 
               <Animated.View style={stickerStyle}>
                 <View style={{ width: SIZE, height: SIZE, borderRadius: SIZE, overflow: 'hidden' }}>
@@ -205,13 +208,13 @@ function Celebration({ b, next, showCoins, more, replay = false, onDone }: { b: 
                   </View>
                 </Reveal>
               ) : null}
+              <Reveal at={at(T.teaser)} full>
+                <Perks b={b} showCoins={showCoins} next={next && next.id !== b.id ? next : null} />
+              </Reveal>
             </View>
-          </View>
+          </ScrollView>
 
-          <View className="gap-3 px-6 pb-4">
-            <Reveal at={at(T.teaser)} full>
-              <Perks b={b} showCoins={showCoins} next={next && next.id !== b.id ? next : null} />
-            </Reveal>
+          <View className="px-6 pb-4 pt-2">
             <Reveal at={at(T.collect)} show={canCollect} full>
               <Pressable
                 accessibilityRole="button"
