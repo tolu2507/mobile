@@ -179,7 +179,7 @@ export type WalletEntry = { id: string; amountKobo: Kobo; description: string; c
 /** `dailyLimitKobo` null = no limit. `school` is only sent to the student (who they pay at the tuck shop). */
 export type WalletSummary = { balanceKobo: Kobo; shopCode: string; dailyLimitKobo: Kobo | null; spentTodayKobo: Kobo; entries: WalletEntry[]; school?: { id: string; name: string } | null };
 export type Checkout = { reference: string; checkoutUrl: string };
-/** One plan: a free trial, then ₦1,500 for 30 days at a time, for all the parent's children. */
+/** One plan: a free trial, then one price for a set number of days, for all the parent's children (Overwatch settings). */
 export type Plan = {
   state: 'NO_CHILDREN' | 'TRIAL' | 'ACTIVE' | 'FREE';
   trialEndsAt: string | null;
@@ -201,6 +201,7 @@ export type ParentRewards = {
   canCollect: boolean;
   /** Overwatch can pause rewards for everyone; balances are kept. */
   rewardsEnabled: boolean;
+  planPriceKobo: string;
   rates: { perCorrect: number; practicePerDay: number; perMock: number; stickers: Record<StickerRarity, number> };
   coinsPerReward: number;
   rewardKobo: string;

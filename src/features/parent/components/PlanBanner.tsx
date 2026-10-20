@@ -15,7 +15,7 @@ export function RewardsBanner() {
     <Banner
       tone="success"
       title={`Your children earned you ${naira(r.balanceKobo)}!`}
-      message={r.canCollect ? 'Collect it as airtime or data for any Nigerian number.' : 'It’s safe in your rewards. Collecting is part of the ₦1,500 plan.'}
+      message={r.canCollect ? 'Collect it as airtime or data for any Nigerian number.' : `It’s safe in your rewards. Collecting is part of the ${naira(r.planPriceKobo)} plan.`}
       action={{ label: r.canCollect ? 'Collect' : 'See rewards', onPress: () => router.push('/parent/rewards') }}
     />
   );

@@ -57,7 +57,7 @@ function Balance({ r }: { r: ParentRewards }) {
     : r.canCollect
     ? 'Send it as airtime or data to any Nigerian number.'
     : r.earning
-      ? 'Your children are earning. Collecting is part of the ₦1,500 plan, and everything they earn stays here until then.'
+      ? `Your children are earning. Collecting is part of the ${naira(r.planPriceKobo)} plan, and everything they earn stays here until then.`
       : 'On the free plan your children don’t earn coins. Upgrade and every new question they get right starts earning.';
   return (
     <View style={{ backgroundColor: '#2B1D00', borderRadius: 26, padding: 20, gap: 6 }}>

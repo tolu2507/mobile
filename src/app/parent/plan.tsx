@@ -23,7 +23,7 @@ const INCLUDED: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
   { icon: 'people-outline', text: 'All your children on one plan' },
 ];
 
-/** The parent's plan: free trial, then one price for 30 days. No automatic charges. */
+/** The parent's plan: free trial, then one price for a set number of days. No automatic charges. */
 export default function PlanScreen() {
   const plan = usePlan();
   const pay = usePayment(startPlanPayment, [['parent']]);
@@ -31,7 +31,7 @@ export default function PlanScreen() {
   const subscribe = () =>
     pay.mutate(undefined, {
       onSuccess: (status) => {
-        if (status === 'SUCCESS') toast.success('Payment received. 30 days added. Thank you!');
+        if (status === 'SUCCESS') toast.success(`Payment received. ${plan.data?.planDays ?? 30} days added. Thank you!`);
         else if (status === 'PENDING') toast.info('Your bank is still processing. Your plan updates when it clears.');
         else if (status === 'FAILED') toast.error('The payment didn’t go through. No money was taken.');
       },

@@ -56,7 +56,7 @@ export default function ParentHome() {
       ) : (
         children.data.map((c, i) => (
           <Animated.View key={c.id} entering={FadeInDown.delay(i * 80).springify().damping(16)}>
-            <ChildTile child={c} card={cards.data?.find((x) => x.studentId === c.id)} loading={cards.isPending} />
+            <ChildTile child={c} card={cards.data?.find((x) => x.studentId === c.id)} loading={cards.isPending} freeQuestions={plan.data?.freeDailyQuestions} />
           </Animated.View>
         ))
       )}
@@ -64,7 +64,7 @@ export default function ParentHome() {
   );
 }
 
-function ChildTile({ child, card, loading }: { child: Child; card?: Card; loading: boolean }) {
+function ChildTile({ child, card, loading, freeQuestions }: { child: Child; card?: Card; loading: boolean; freeQuestions?: number }) {
   const w = card?.week;
   const accuracy = w?.questions ? Math.round((w.correct / w.questions) * 100) : null;
   const exams = card?.exams.map((e) => (e.targetYear ? `${e.label} ${e.targetYear}` : e.label)).join(' · ');
@@ -121,7 +121,7 @@ function ChildTile({ child, card, loading }: { child: Child; card?: Card; loadin
       {card?.locked ? (
         <View className="flex-row items-center gap-2 rounded-2xl bg-coral-50 p-3">
           <Ionicons name="pause-circle-outline" size={20} color={palette.coral[700]} />
-          <Text className="flex-1 font-body-semibold text-[14px] text-coral-700">Free plan: {child.firstName} gets 10 questions a day. Upgrade for unlimited practice and progress.</Text>
+          <Text className="flex-1 font-body-semibold text-[14px] text-coral-700">Free plan: {child.firstName} gets {freeQuestions ?? 'a few'} questions a day. Upgrade for unlimited practice and progress.</Text>
         </View>
       ) : null}
 
