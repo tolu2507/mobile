@@ -14,6 +14,7 @@ import { isPrimary, usePlayable, useStudentHome, useSubmitPlay } from '@/feature
 import { friendlyError } from '@/lib/api';
 import { palette, roles } from '@/theme';
 import type { PlayResult, Question } from '@/types/api';
+import { StickerFace } from '@/features/student/components/Sticker';
 
 export default function Play() {
   const params = useLocalSearchParams<{ kind: string; id: string }>();
@@ -178,7 +179,7 @@ function Results({ result, questions, accent, shadow, bg, primary }: { result: P
 
         {rewards?.newBadges.map((b, i) => (
           <PopIn key={b.code} delay={badgeAt(i)}>
-            <RewardCard tone="sun" icon={<Ionicons name="ribbon" size={28} color={palette.ink.DEFAULT} />} title={`New badge: ${b.name}`} body={b.description} />
+            <RewardCard tone="sun" icon={<StickerFace icon={b.icon} rarity={b.rarity} size={48} />} title={`New sticker: ${b.name}`} body={b.description} />
           </PopIn>
         ))}
 

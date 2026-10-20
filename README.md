@@ -1,6 +1,6 @@
-# Nexus Mobile
+# BrainBox Mobile
 
-The Nexus app for **students**, **parents** and **tuck-shop staff**. School staff and the
+The BrainBox app for **students**, **parents** and **tuck-shop staff**. School staff and the
 Overwatch admin team use the web app (`../frontend`). Everything talks to the API in `../backend`.
 
 ## Stack
@@ -54,7 +54,7 @@ src/
     (parent)/             tabs: Reports · Fees & wallet · Me
     index.tsx             sends each person to their role's world
   components/
-    ui/                   Nexus design components (GameButton, Card, ProgressBar, Skeleton, …)
+    ui/                   BrainBox design components (GameButton, Card, ProgressBar, Skeleton, …)
     reacticx/             components copied from Reacticx (restyled via props)
     TabBar.tsx            one tab bar for every role; "playful" variant for primary kids
     ProfileScreen.tsx     shared Me tab incl. role switcher
@@ -77,7 +77,7 @@ decides which world they see; they switch on the **Me** tab.
 | Student, primary | Coral + warm yellow, chunkier | One "adventure" at a time, picture-led worlds, stars and stickers instead of money, floating tab bar with no small labels |
 | Parent | Calm teal | AI weekly report per child, subject scores, home tips, wallet top-up |
 
-Lesson-teacher matching is paused (Nexus itself is the tutor). The tutor screens were removed in
+Lesson-teacher matching is paused (BrainBox itself is the tutor). The tutor screens were removed in
 git; the backend `tutor` module is still there, unused.
 
 ## The UX bar: every screen must have these
@@ -102,7 +102,7 @@ npx reacticx add <name> -y        # copies source into src/components/reacticx
 npx reacticx diff <name>          # see upstream changes later
 ```
 
-Restyle it with Nexus tokens through its props (e.g. `ScoreRing` wraps
+Restyle it with BrainBox tokens through its props (e.g. `ScoreRing` wraps
 `circular-progress`). Edit the copied source only when props can't do it.
 In use so far: `animated-input-bar`, `circular-progress`, `number-flow`, `qr-code`, `otp-input`, `Toast`, `verified-badge`.
 

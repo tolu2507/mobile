@@ -12,6 +12,7 @@ import { Banner, Body, GameButton, PressableScale } from '@/components/ui';
 import { hush, say, useVoice } from '@/lib/speech';
 import { fonts, palette, type RoleTheme } from '@/theme';
 import type { PracticeQuestion, PracticeResult } from '@/types/api';
+import { StickerFace } from '@/features/student/components/Sticker';
 import { parseNurseryLabel, parseNurseryStem, pictureCount, PRAISE, TRY_AGAIN } from '../nursery';
 
 const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)];
@@ -355,7 +356,7 @@ export function NurseryResults({ result, theme, onNext }: { result: PracticeResu
         ) : null}
         {rewards.newBadges.map((b, i) => (
           <PopIn key={b.code} delay={2300 + i * 450}>
-            <RewardCard tone="sun" icon={<Ionicons name="ribbon" size={28} color={palette.ink.DEFAULT} />} title={`New badge: ${b.name}`} body={b.description} />
+            <RewardCard tone="sun" icon={<StickerFace icon={b.icon} rarity={b.rarity} size={48} />} title={`New sticker: ${b.name}`} body={b.description} />
           </PopIn>
         ))}
 

@@ -2,7 +2,7 @@ import { View, type ViewProps } from 'react-native';
 
 type Props = ViewProps & { className?: string; tone?: 'white' | 'ink' | 'soft' };
 
-/** White surface with the Nexus "ledge" shadow. */
+/** White surface with the BrainBox "ledge" shadow. */
 export function Card({ className = '', tone = 'white', style, ...props }: Props) {
   const toneClass = tone === 'ink' ? 'bg-ink' : tone === 'soft' ? 'bg-white/70' : 'bg-white';
   return (

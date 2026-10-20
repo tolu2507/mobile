@@ -6,15 +6,14 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { fonts, palette } from '@/theme';
-import { LOGO_HEAD, LOGO_N } from './Logo';
+import { LOGO_B, LOGO_HEAD, MARK_VIEWBOX } from './Logo';
 
 /** Same size as the native splash image (app.json: expo-splash-screen imageWidth), so the hand-over is seamless. */
 const SIZE = 140;
-const VIEWBOX = '15 15 70 70';
 
 /**
  * Takes over from the native splash showing the exact same picture, then plays: the learner's head bounces,
- * the mark lifts and "Nexus" slides in, and the whole thing fades away to reveal the app underneath.
+ * the mark lifts and "BrainBox" slides in, and the whole thing fades away to reveal the app underneath.
  */
 export function AnimatedSplash() {
   const [done, setDone] = useState(false);
@@ -50,17 +49,17 @@ export function AnimatedSplash() {
     // Hide the native splash only once this identical frame is on screen.
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.screen, screen]} onLayout={() => void SplashScreen.hideAsync()}>
       <Animated.View style={[{ width: SIZE, height: SIZE }, mark]}>
-        <Svg width={SIZE} height={SIZE} viewBox={VIEWBOX} style={StyleSheet.absoluteFill}>
-          <Path d={LOGO_N} fill="none" stroke="#FFFFFF" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" />
+        <Svg width={SIZE} height={SIZE} viewBox={MARK_VIEWBOX} style={StyleSheet.absoluteFill}>
+          <Path d={LOGO_B} fill="none" stroke="#FFFFFF" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
         <Animated.View style={[StyleSheet.absoluteFill, headStyle]}>
-          <Svg width={SIZE} height={SIZE} viewBox={VIEWBOX}>
+          <Svg width={SIZE} height={SIZE} viewBox={MARK_VIEWBOX}>
             <Circle {...LOGO_HEAD} fill={palette.sun[400]} />
           </Svg>
         </Animated.View>
       </Animated.View>
       <Animated.View style={[styles.word, wordStyle]}>
-        <Text style={styles.wordText}>Nexus</Text>
+        <Text style={styles.wordText}>BrainBox</Text>
       </Animated.View>
     </Animated.View>
   );

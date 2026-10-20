@@ -149,7 +149,7 @@ const StaggeredPlaceholder: React.FC<{
   );
 };
 
-// Nexus edits (keep when diffing upstream): forwardRef so forms can move focus,
+// BrainBox edits (keep when diffing upstream): forwardRef so forms can move focus,
 // follow the `value` prop so resets show, and call the caller's onFocus/onBlur too.
 const AnimatedInput = memo(
   forwardRef<TextInput, IAnimatedInput>(function AnimatedInput(

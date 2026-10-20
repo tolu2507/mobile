@@ -1,5 +1,5 @@
 /**
- * Shapes returned by the Nexus API (../backend). Money is kobo, sent as a string.
+ * Shapes returned by the BrainBox API (../backend). Money is kobo, sent as a string.
  * Keep in step with backend/src/** services.
  */
 
@@ -38,10 +38,16 @@ export type GradeResult = {
 };
 
 /** What changed after a quest or quiz, so the results screen can celebrate it. */
+export type StickerRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
+export type NewSticker = { code: string; name: string; description: string; rarity: StickerRarity; icon: string | null; coins: number };
+/** Coins move only while the family is on the trial or paid plan; null otherwise. 10,000 coins = ₦1,000 for the parent. */
+export type CoinResult = { earned: number; balance: number; target: number; sentKobo: number } | null;
+
 export type Rewards = {
   level: { before: number; after: number; title: string };
   streak: { days: number; extended: boolean };
-  newBadges: { code: string; name: string; description: string }[];
+  newBadges: NewSticker[];
+  coins?: CoinResult;
 };
 
 export type PlayResult = GradeResult & { xpEarned: number; rewards?: Rewards };
@@ -75,12 +81,30 @@ export type StudentHome = {
   league: League | null;
   quests: Quest[];
   adventure: { activityId: string; title: string; step: number; steps: number } | null;
+  /** limit is null on the trial or paid plan; on the free plan it's 10 a day. */
+  practice: { limit: number | null; left: number | null };
+  /** Earn while you learn. null on the free plan, where children see nothing about money. */
+  coins: { balance: number; target: number; rewardKobo: string; earnedKobo: string } | null;
 };
 
 export type LeagueStanding = { studentId: string; name: string; weeklyXp: number; isMe: boolean };
 export type LeagueView = { league: League | null; standings: LeagueStanding[] };
 
-export type Badge = { id: string; code: string; name: string; description: string; earned: boolean; awardedAt: string | null };
+export type Badge = {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  rarity: StickerRarity;
+  icon: string | null;
+  coins: number;
+  earned: boolean;
+  awardedAt: string | null;
+  /** false until the unlock celebration has played. */
+  seen: boolean;
+  /** For stickers not collected yet. target is null when it can't be a bar (mock ranks, lesson quizzes). */
+  progress: { current: number; target: number | null } | null;
+};
 
 export type PlayableQuiz = {
   id: string;
@@ -152,6 +176,35 @@ export type WalletEntry = { id: string; amountKobo: Kobo; description: string; c
 /** `dailyLimitKobo` null = no limit. `school` is only sent to the student (who they pay at the tuck shop). */
 export type WalletSummary = { balanceKobo: Kobo; shopCode: string; dailyLimitKobo: Kobo | null; spentTodayKobo: Kobo; entries: WalletEntry[]; school?: { id: string; name: string } | null };
 export type Checkout = { reference: string; checkoutUrl: string };
+/** One plan: a free trial, then ₦1,500 for 30 days at a time, for all the parent's children. */
+export type Plan = {
+  state: 'NO_CHILDREN' | 'TRIAL' | 'ACTIVE' | 'FREE';
+  trialEndsAt: string | null;
+  paidUntil: string | null;
+  accessUntil: string | null;
+  daysLeft: number;
+  priceKobo: string;
+  planDays: number;
+  trialDays: number;
+  freeDailyQuestions: number;
+};
+
+export type RedemptionStatus = 'SENDING' | 'PENDING' | 'SUCCESS' | 'FAILED' | 'CHECK';
+export type Redemption = { id: string; kind: 'AIRTIME' | 'DATA'; network: string; phone: string; planName: string | null; amountKobo: string; status: RedemptionStatus; createdAt: string; completedAt: string | null };
+export type ParentRewards = {
+  balanceKobo: string;
+  planState: Plan['state'];
+  earning: boolean;
+  canCollect: boolean;
+  coinsPerReward: number;
+  rewardKobo: string;
+  airtimeOptionsKobo: string[];
+  networks: string[];
+  children: { studentId: string; firstName: string; coins: number; earnedKobo: string }[];
+  activity: { id: string; description: string; amountKobo: string; createdAt: string }[];
+  redemptions: Redemption[];
+};
+export type DataPlan = { planCode: string; name: string; priceKobo: string };
 export type PaymentStatus = { reference: string; status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED' };
 export type NotificationPrefs = { weeklyReport: boolean; examResults: boolean; whatsAppReports: boolean; lessonReminders: boolean; payments: boolean; productNews: boolean };
 
@@ -258,10 +311,13 @@ export type ChildCard = {
   studentId: string;
   streak: number;
   lastActive: string | null;
-  week: WeekStats;
+  /** null while the parent's plan is paused (see `locked`). */
+  week: WeekStats | null;
   lastMock: ChildMock | null;
   nextMock: { title: string; exam: ExamBody; opensAt: string; closesAt: string; state: MockState; taken: boolean } | null;
   exams: { exam: ExamBody; label: string; targetYear: number | null }[];
+  /** The parent's trial or plan has ended: only Friday mock results come through. */
+  locked?: true;
 };
 export type RatedTopic = { topicId: string; subject: string; topic: string; accuracy: number; answered: number; level: number; everyPaper: boolean };
 export type ChildProgress = ChildCard & {

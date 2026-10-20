@@ -25,7 +25,7 @@ type Props = {
 const DEPTH = 4;
 
 /**
- * The signature Nexus button: chunky, with a solid "ledge" under it that the face
+ * The signature BrainBox button: chunky, with a solid "ledge" under it that the face
  * presses down into. Used for every primary action across the apps.
  */
 export function GameButton({

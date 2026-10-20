@@ -26,7 +26,7 @@ export default function Notifications() {
 
   return (
     <Screen background={palette.paper} edges={['top', 'bottom']}>
-      <ScreenHeader title="Notifications" subtitle="Choose what Nexus tells you about." />
+      <ScreenHeader title="Notifications" subtitle="Choose what BrainBox tells you about." />
       {prefs.isPending ? (
         <CardListSkeleton count={1} height={240} />
       ) : prefs.isError ? (
@@ -49,13 +49,13 @@ export default function Notifications() {
           />
           <SwitchRow label="Lesson reminders" description="The day before and an hour before each lesson." value={prefs.data.lessonReminders} onChange={set('lessonReminders')} />
           <SwitchRow label="Payments" description="Receipts, top-ups and lesson payments." value={prefs.data.payments} onChange={set('payments')} />
-          <SwitchRow label="News from Nexus" description="New features and offers. Never more than twice a month." value={prefs.data.productNews} onChange={set('productNews')} />
+          <SwitchRow label="News from BrainBox" description="New features and offers. Never more than twice a month." value={prefs.data.productNews} onChange={set('productNews')} />
         </Card>
       )}
       {push === 'denied' ? (
         <Banner
           tone="info"
-          title="Notifications are off for Nexus"
+          title="Notifications are off for BrainBox"
           message="Turn them on in your phone’s settings to get reminders and reports on this phone."
           action={{ label: 'Open settings', onPress: () => Linking.openSettings() }}
         />

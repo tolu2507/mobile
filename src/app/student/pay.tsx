@@ -22,7 +22,7 @@ const QUICK = [100, 200, 500, 1000];
 
 /**
  * Paying the tuck shop from your own phone: type the amount, send. It goes to your school
- * (or a school you pick if you're not in one on Nexus). The staff see it arrive on their phone.
+ * (or a school you pick if you're not in one on BrainBox). The staff see it arrive on their phone.
  */
 export default function PayTuckShop() {
   const wallet = useStudentWallet();
@@ -121,7 +121,7 @@ export default function PayTuckShop() {
   );
 }
 
-/** Only for children who aren't in a school on Nexus. */
+/** Only for children who aren't in a school on BrainBox. */
 function SchoolPicker({ onPick }: { onPick: (s: PayableSchool) => void }) {
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
@@ -138,7 +138,7 @@ function SchoolPicker({ onPick }: { onPick: (s: PayableSchool) => void }) {
       ) : schools.isError ? (
         <ErrorState error={schools.error} onRetry={schools.refetch} color={theme.accent} />
       ) : schools.data.length === 0 ? (
-        <Caption className="text-center">No school with that name is on Nexus yet.</Caption>
+        <Caption className="text-center">No school with that name is on BrainBox yet.</Caption>
       ) : (
         schools.data.map((s) => (
           <PressableScale key={s.id} accessibilityLabel={`Pay ${s.name}`} onPress={() => onPick(s)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: palette.white, borderRadius: 18, padding: 14 }}>

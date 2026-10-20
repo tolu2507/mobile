@@ -2,16 +2,18 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { palette } from '@/theme';
 
-/** The N; its last stroke is a learner, whose sun-yellow head is drawn separately so it can move. */
-export const LOGO_N = 'M27 75 V31 L69 73 V50';
-export const LOGO_HEAD = { cx: 69, cy: 29, r: 9.5 };
+/** A lowercase b whose stem is a learner; the sun-yellow head is drawn separately so it can move. The tile is the "box". */
+export const LOGO_B = 'M40.5 42 V80 H47.5 A16 16 0 0 0 47.5 48 H40.5';
+export const LOGO_HEAD = { cx: 40.5, cy: 24, r: 10.5 };
+/** The mark alone, without the tile, fills this part of the 100-unit grid (the splash image is cut the same way). */
+export const MARK_VIEWBOX = '7.5 7.5 85 85';
 
-/** The Nexus mark. `tile` puts it on the violet rounded square used for the app icon. */
+/** The BrainBox mark. `tile` puts it on the violet rounded square used for the app icon. */
 export function LogoMark({ size = 40, tile = true }: { size?: number; tile?: boolean }) {
   return (
-    <Svg width={size} height={size} viewBox={tile ? '0 0 100 100' : '15 15 70 70'} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <Svg width={size} height={size} viewBox={tile ? '0 0 100 100' : MARK_VIEWBOX} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {tile ? <Rect width={100} height={100} rx={26} fill={palette.violet[500]} /> : null}
-      <Path d={LOGO_N} fill="none" stroke="#FFFFFF" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d={LOGO_B} fill="none" stroke="#FFFFFF" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" />
       <Circle {...LOGO_HEAD} fill={palette.sun[400]} />
     </Svg>
   );

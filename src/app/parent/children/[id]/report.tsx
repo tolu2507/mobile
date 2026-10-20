@@ -42,7 +42,7 @@ export default function ChildReport() {
         <EmptyState
           icon="sparkles-outline"
           title="Switch on weekly reports"
-          message={`Every Friday, Nexus AI writes a short report on how ${child?.firstName} did, from their real attendance, scores and teacher notes. Only you see it.`}
+          message={`Every Friday, BrainBox AI writes a short report on how ${child?.firstName} did, from their real attendance, scores and teacher notes. Only you see it.`}
           action={
             <GameButton
               label="Switch on reports"
@@ -75,7 +75,7 @@ export default function ChildReport() {
         <>
           <Animated.View entering={FadeInDown.springify().damping(16)} style={{ backgroundColor: '#12302B', borderRadius: 24, padding: 18, gap: 14 }}>
             <Text className="font-body-semibold text-[13px]" style={{ color: '#9FE3D2' }}>
-              {r.isThisWeek ? 'This week so far' : r.weekLabel} · {r.writtenBy === 'ai' ? 'written by Nexus AI from real scores' : 'from real scores'}
+              {r.isThisWeek ? 'This week so far' : r.weekLabel} · {r.writtenBy === 'ai' ? 'written by BrainBox AI from real scores' : 'from real scores'}
             </Text>
             <Text className="font-display-bold text-[21px] leading-[27px] text-white">{r.headline}</Text>
             {r.summary ? <Text className="font-body text-[14px] leading-[21px]" style={{ color: '#D7F1EA' }}>{r.summary}</Text> : null}

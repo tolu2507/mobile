@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { Checkout, Child, ChildCard, ChildProgress, FeeInvoice, WalletSummary, WeeklyReport } from '@/types/api';
+import type { Checkout, Child, ChildCard, ChildProgress, DataPlan, FeeInvoice, ParentRewards, Plan, Redemption, WalletSummary, WeeklyReport } from '@/types/api';
 
 export function useChildren() {
   return useQuery({ queryKey: ['parent', 'children'], queryFn: async () => (await api.get<Child[]>('/parent/children')).data });
@@ -83,6 +83,35 @@ export const startFeePayment = (invoiceId: string, amountKobo?: number) => async
 
 export const startTopup = (studentId: string, amountKobo: number) => async () =>
   (await api.post<Checkout>(`/parent/children/${studentId}/wallet/topup`, { amountKobo })).data;
+
+export function usePlan() {
+  return useQuery({ queryKey: ['parent', 'plan'], queryFn: async () => (await api.get<Plan>('/parent/plan')).data });
+}
+
+export const startPlanPayment = async () => (await api.post<Checkout>('/parent/plan/pay')).data;
+
+export function useParentRewards() {
+  return useQuery({ queryKey: ['parent', 'rewards'], queryFn: async () => (await api.get<ParentRewards>('/parent/rewards')).data });
+}
+
+export function useDataPlans(network: string | null) {
+  return useQuery({
+    queryKey: ['parent', 'rewards', 'data-plans', network],
+    enabled: !!network,
+    staleTime: 10 * 60_000,
+    queryFn: async () => (await api.get<DataPlan[]>('/parent/rewards/data-plans', { params: { network } })).data,
+  });
+}
+
+export type RedeemInput = { kind: 'AIRTIME' | 'DATA'; network: string; phone: string; amountKobo?: string; planCode?: string };
+
+export function useRedeem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: RedeemInput) => (await api.post<Redemption>('/parent/rewards/redeem', body)).data,
+    onSettled: () => qc.invalidateQueries({ queryKey: ['parent', 'rewards'] }),
+  });
+}
 
 export function useChildCards() {
   return useQuery({ queryKey: ['parent', 'progress'], queryFn: async () => (await api.get<ChildCard[]>('/parent/progress')).data });

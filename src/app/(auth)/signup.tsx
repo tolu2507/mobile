@@ -48,7 +48,7 @@ export default function Signup() {
       <FormTextField control={control} name="password" label="Password" secure autoComplete="new-password" textContentType="newPassword" hint="At least 8 characters." returnKeyType="go" onSubmitEditing={submit} accent={theme.accent} />
       {register.isError ? <Banner tone="error" message={friendlyError(register.error)} /> : null}
       <Body className="text-center text-[13px] text-ink-500">
-        By continuing you agree to the Nexus terms and privacy policy. We never share your child’s data with advertisers.
+        By continuing you agree to the BrainBox terms and privacy policy. We never share your child’s data with advertisers.
       </Body>
     </FormScreen>
   );

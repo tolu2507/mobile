@@ -39,7 +39,7 @@ export default function Welcome() {
                 <View className="rounded-[20px] border-[3px] border-white/90">
                   <LogoMark size={56} />
                 </View>
-                <Text className="font-display text-[30px] tracking-tight text-white">Nexus</Text>
+                <Text className="font-display text-[30px] tracking-tight text-white">BrainBox</Text>
               </View>
               <Text accessibilityRole="header" className="font-display text-[44px] leading-[46px] text-white">
                 Learning that feels like play.

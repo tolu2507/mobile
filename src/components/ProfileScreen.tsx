@@ -68,7 +68,7 @@ export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar 
                 <PressableScale
                   key={r}
                   accessibilityState={{ selected: active }}
-                  accessibilityLabel={`Use Nexus as ${roleNames[r].label}`}
+                  accessibilityLabel={`Use BrainBox as ${roleNames[r].label}`}
                   onPress={() => {
                     if (active) return;
                     switchRole(r);

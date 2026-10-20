@@ -14,8 +14,8 @@ export default function NoAccess() {
       <View className="flex-1 justify-center">
         <EmptyState
           icon="desktop-outline"
-          title="Use Nexus on the web"
-          message="School staff accounts manage Nexus from the web dashboard. The mobile app is for students, parents and tuck-shop staff."
+          title="Use BrainBox on the web"
+          message="School staff accounts manage BrainBox from the web dashboard. The mobile app is for students, parents and tuck-shop staff."
           action={
             <GameButton
               label="Sign out"

@@ -45,7 +45,7 @@ export default function Sell() {
     return (
       <Shell>
         <Header firstName={p.firstName} lastName={p.lastName} detail={p.className} onClose={() => router.back()} />
-        <Banner tone="error" title={`${p.firstName} doesn’t have a PIN yet`} message="A parent can set one in the Nexus app (Wallet → Change PIN), or the school office can print a new one." />
+        <Banner tone="error" title={`${p.firstName} doesn’t have a PIN yet`} message="A parent can set one in the BrainBox app (Wallet → Change PIN), or the school office can print a new one." />
         <GameButton label="Back to the counter" variant="outline" onPress={() => router.back()} />
       </Shell>
     );

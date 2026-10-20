@@ -63,7 +63,7 @@ api.interceptors.response.use(
 /** Turns any API/network error into one sentence a parent or child can read. */
 export function friendlyError(error: unknown): string {
   if (isAxiosError(error)) {
-    if (!error.response) return `We can't reach Nexus. Check your internet${__DEV__ ? ` (and that the API is running at ${API_URL})` : ''}.`;
+    if (!error.response) return `We can't reach BrainBox. Check your internet${__DEV__ ? ` (and that the API is running at ${API_URL})` : ''}.`;
     const message = (error.response.data as { message?: string | string[] } | undefined)?.message;
     if (typeof message === 'string') return message;
     if (Array.isArray(message) && message.length) return message[0];

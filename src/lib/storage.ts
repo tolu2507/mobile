@@ -1,7 +1,7 @@
 import { createMMKV } from 'react-native-mmkv';
 import type { StateStorage } from 'zustand/middleware';
 
-/** All on-device storage for Nexus lives in MMKV (fast, synchronous, sandboxed to the app). */
+/** All on-device storage for BrainBox lives in MMKV (fast, synchronous, sandboxed to the app). */
 export const storage = createMMKV({ id: 'nexus' });
 
 /** Adapter so Zustand's `persist` can save into MMKV. */

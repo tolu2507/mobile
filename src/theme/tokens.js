@@ -1,5 +1,5 @@
 /**
- * Nexus design tokens — the single source of truth for colour and type.
+ * BrainBox design tokens — the single source of truth for colour and type.
  * Used by tailwind.config.js (class names) and by TS code (style props, charts, icons).
  * Plain CommonJS so the Tailwind config can require it.
  */

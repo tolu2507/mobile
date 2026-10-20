@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Nexus",
+    "name": "BrainBox",
     "slug": "nexus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "nexus",
+    "scheme": "brainbox",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.tolulopeb.nexus"
+      "bundleIdentifier": "com.tolulopeb.brainbox"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.tolulopeb.nexus"
+      "package": "com.tolulopeb.brainbox"
     },
     "web": {
       "output": "static",

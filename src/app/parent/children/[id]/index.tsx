@@ -45,7 +45,7 @@ export default function ChildDetail() {
 
       <Card className="gap-2">
         <Title>How {child.firstName} signs in</Title>
-        <Caption className="text-[14px]">On the Nexus app, tap “I’m a student”, then enter:</Caption>
+        <Caption className="text-[14px]">On the BrainBox app, tap “I’m a student”, then enter:</Caption>
         <View className="flex-row items-center justify-between rounded-2xl bg-mint-50 p-3.5">
           <Text className="font-body text-[14px] text-ink-700">Username</Text>
           <Text selectable className="font-display text-[20px] text-ink">{child.username}</Text>

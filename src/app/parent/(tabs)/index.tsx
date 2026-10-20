@@ -6,8 +6,9 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Flame } from '@/components/game';
 import { Avatar, Caption, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, PressableScale, Screen } from '@/components/ui';
 import { countdown, lagosWhen, ordinal } from '@/features/mocks/format';
-import { useChildCards, useChildren } from '@/features/parent/api';
+import { useChildCards, useChildren, useParentRewards, usePlan } from '@/features/parent/api';
 import { PendingChildren } from '@/features/parent/components/PendingChildren';
+import { PlanBanner, RewardsBanner } from '@/features/parent/components/PlanBanner';
 import { initials } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
 import { palette, roles } from '@/theme';
@@ -19,9 +20,13 @@ const theme = roles.parent;
 export default function ParentHome() {
   const children = useChildren();
   const cards = useChildCards();
+  const plan = usePlan();
+  const rewards = useParentRewards();
   const refresh = () => {
     void children.refetch();
     void cards.refetch();
+    void plan.refetch();
+    void rewards.refetch();
   };
 
   return (
@@ -34,6 +39,8 @@ export default function ParentHome() {
       </View>
 
       <PendingChildren />
+      <PlanBanner />
+      <RewardsBanner />
 
       {children.isPending ? (
         <CardListSkeleton count={2} height={190} />
@@ -108,6 +115,13 @@ function ChildTile({ child, card, loading }: { child: Child; card?: Card; loadin
               {card.lastMock.rank && card.lastMock.sat ? `${ordinal(card.lastMock.rank)} of ${card.lastMock.sat.toLocaleString()} nationally` : 'National rank comes out at 9pm'}
             </Caption>
           </View>
+        </View>
+      ) : null}
+
+      {card?.locked ? (
+        <View className="flex-row items-center gap-2 rounded-2xl bg-coral-50 p-3">
+          <Ionicons name="pause-circle-outline" size={20} color={palette.coral[700]} />
+          <Text className="flex-1 font-body-semibold text-[14px] text-coral-700">Free plan: {child.firstName} gets 10 questions a day. Upgrade for unlimited practice and progress.</Text>
         </View>
       ) : null}
 

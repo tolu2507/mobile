@@ -10,6 +10,7 @@ import { ExamPrepCard } from '@/features/exams/components/ExamPrepCard';
 import { FridayMockCard } from '@/features/mocks/components/FridayMockCard';
 import { palette, roles } from '@/theme';
 import type { StudentHome } from '@/types/api';
+import { HomeRewards } from './HomeRewards';
 
 const theme = roles.studentPrimary;
 
@@ -39,6 +40,7 @@ export function PrimaryHome({ home, refreshing, onRefresh }: { home: StudentHome
         </View>
       </View>
 
+      <HomeRewards home={home} theme={theme} primary />
       <ExamPrepCard level={home.level} grade={home.gradeName} theme={theme} />
       <FridayMockCard />
 

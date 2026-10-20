@@ -19,7 +19,7 @@ export default function StudentMe() {
     : [];
 
   return (
-    <ProfileScreen theme={theme} floatingTabBar={primary}>
+    <ProfileScreen theme={theme} floatingTabBar={primary} extraRows={primary ? [] : [{ icon: 'ribbon-outline', label: 'My stickers', href: '/student/stickers' }]}>
       <View className="flex-row gap-3">
         {stats.map((s) => (
           <View key={s.label} accessibilityLabel={`${s.label}: ${s.value}`} className="flex-1 items-center gap-1 rounded-[20px] bg-white py-4">

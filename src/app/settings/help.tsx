@@ -13,11 +13,11 @@ const FAQ = [
   { q: 'My child forgot their PIN', a: 'In the parent app go to Me → My children → choose your child → Reset PIN. They can sign in with the new PIN straight away.' },
   {
     q: 'How do weekly reports work?',
-    a: 'Every Friday at 4pm we sum up the week: practice, Friday mocks, streaks and (if their school uses Nexus) attendance and tests. You can open the report any time to see the week so far.',
+    a: 'Every Friday at 4pm we sum up the week: practice, Friday mocks, streaks and (if their school uses BrainBox) attendance and tests. You can open the report any time to see the week so far.',
   },
   {
     q: 'Where do the practice questions come from?',
-    a: 'Nexus writes its own questions, following the pattern of real past papers for each exam. Every question is checked before students see it, and a student never gets the same question twice.',
+    a: 'BrainBox writes its own questions, following the pattern of real past papers for each exam. Every question is checked before students see it, and a student never gets the same question twice.',
   },
   { q: 'When is the Friday mock?', a: 'Every Friday a timed mock opens for each exam, just like the real CBT. Results and the child’s national ranking come out after it closes.' },
   { q: 'I found a mistake in a question', a: 'Tap “Report this question” under it. We check every report and fix or remove the question.' },
@@ -59,7 +59,7 @@ export default function Help() {
       ) : tickets.isError ? (
         <ErrorState error={tickets.error} onRetry={tickets.refetch} />
       ) : tickets.data.length === 0 ? (
-        <EmptyState icon="chatbubbles-outline" title="No questions yet" message="Ask us anything about Nexus. We reply here, and you’ll get a notification." />
+        <EmptyState icon="chatbubbles-outline" title="No questions yet" message="Ask us anything about BrainBox. We reply here, and you’ll get a notification." />
       ) : (
         <View className="gap-2">
           {tickets.data.map((t, i) => (
@@ -73,7 +73,7 @@ export default function Help() {
                 <View className="flex-1 gap-1">
                   <Label numberOfLines={1}>{t.subject}</Label>
                   <Caption numberOfLines={1}>
-                    {t.lastFromStaff ? 'Nexus: ' : 'You: '}
+                    {t.lastFromStaff ? 'BrainBox: ' : 'You: '}
                     {t.lastMessage}
                   </Caption>
                   <View className="flex-row items-center gap-2">

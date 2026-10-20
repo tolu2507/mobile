@@ -38,7 +38,7 @@ export default function NewSupportQuestion() {
 
   return (
     <FormScreen background={palette.paper} footer={<GameButton label="Send" loading={open.isPending} onPress={submit} />}>
-      <ScreenHeader title="Ask us a question" subtitle="A real person at Nexus reads every message." />
+      <ScreenHeader title="Ask us a question" subtitle="A real person at BrainBox reads every message." />
       <FormTextField control={control} name="subject" label="What is it about?" placeholder={['I can’t sign in', 'My child’s report looks wrong', 'How do mocks work?']} returnKeyType="next" onSubmitEditing={() => setFocus('body')} />
       {kids.length ? (
         <FormChipGroup

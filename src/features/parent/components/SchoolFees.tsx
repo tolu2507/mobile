@@ -15,7 +15,7 @@ import type { FeeInvoice } from '@/types/api';
 const theme = roles.parent;
 const STATUS = { UNPAID: { label: 'Not paid', tone: 'coral' }, PART_PAID: { label: 'Part paid', tone: 'sun' }, PAID: { label: 'Paid', tone: 'mint' } } as const;
 
-/** School fee bills for one child. Hidden entirely for children who aren't in a Nexus school. */
+/** School fee bills for one child. Hidden entirely for children who aren't in a BrainBox school. */
 export function SchoolFees({ studentId, childName }: { studentId: string; childName: string }) {
   const invoices = useChildInvoices(studentId);
   if (!invoices.data?.length) return null;

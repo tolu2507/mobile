@@ -15,7 +15,7 @@ export function usePayment(start: () => Promise<Checkout>, invalidate: unknown[]
   return useMutation({
     mutationFn: async (): Promise<PaymentStatus['status'] | 'CANCELLED'> => {
       const checkout = await start();
-      const result = await WebBrowser.openAuthSessionAsync(checkout.checkoutUrl, 'nexus://payment');
+      const result = await WebBrowser.openAuthSessionAsync(checkout.checkoutUrl, 'brainbox://payment');
       // Even if the browser was closed by hand, the payment may have gone through: always check.
       for (let i = 0; i < 4; i++) {
         const { data } = await api.post<PaymentStatus>(`/payments/${checkout.reference}/verify`);

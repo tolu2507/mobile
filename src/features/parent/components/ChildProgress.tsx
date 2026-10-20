@@ -19,6 +19,24 @@ export function ChildProgress({ studentId, name, theme }: { studentId: string; n
   const p = q.data;
   const started = p.subjects.some((s) => s.answered > 0) || p.mocks.length > 0;
 
+  if (p.locked) {
+    return (
+      <View className="gap-4">
+        <Card className="gap-3">
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="pause-circle-outline" size={22} color={palette.coral[700]} />
+            <Title>Progress is on the paid plan</Title>
+          </View>
+          <Caption className="text-[14px]">You’re on the free plan, so {name}’s progress and weekly report are hidden. Nothing is lost: it all comes back when you upgrade.</Caption>
+          <PressableScale accessibilityRole="button" onPress={() => router.push('/parent/plan')} style={{ backgroundColor: theme.accent, borderRadius: 16, paddingVertical: 13, alignItems: 'center' }}>
+            <Text className="font-body-bold text-[15px] text-white">See plan</Text>
+          </PressableScale>
+        </Card>
+        {p.mocks.length ? <Mocks mocks={p.mocks} theme={theme} /> : null}
+      </View>
+    );
+  }
+
   return (
     <View className="gap-4">
       <ThisWeek p={p} name={name} theme={theme} />
@@ -115,6 +133,7 @@ export function ChildProgress({ studentId, name, theme }: { studentId: string; n
 
 function ThisWeek({ p, name, theme }: { p: Progress; name: string; theme: RoleTheme }) {
   const w = p.week;
+  if (!w) return null;
   const diff = w.xp - w.lastWeekXp;
   return (
     <Card className="gap-3">

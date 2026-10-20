@@ -71,7 +71,7 @@ export default function NewChild() {
 
   return (
     <FormScreen background={theme.bg} footer={<GameButton label="Create login" color={theme.accent} shadowColor={theme.shadow} loading={create.isPending} onPress={submit} />}>
-      <ScreenHeader title="Add a child" subtitle="Your child gets their own login. They don’t need to be in a Nexus school." />
+      <ScreenHeader title="Add a child" subtitle="Your child gets their own login. They don’t need to be in a BrainBox school." />
       <View className="flex-row gap-3">
         <View className="flex-1">
           <FormTextField control={control} name="firstName" label="First name" onBlur={suggest} returnKeyType="next" onSubmitEditing={() => setFocus('lastName')} accent={theme.accent} />
@@ -134,7 +134,7 @@ export default function NewChild() {
           name="consentDataProcessing"
           render={({ field, fieldState }) => (
             <>
-              <SwitchRow label="Store learning data" description="Required: quiz answers, scores and activity so Nexus works." value={field.value} onChange={field.onChange} accent={theme.accent} />
+              <SwitchRow label="Store learning data" description="Required: quiz answers, scores and activity so BrainBox works." value={field.value} onChange={field.onChange} accent={theme.accent} />
               {fieldState.error ? <Text className="font-body-semibold text-[13px] text-coral-700">{fieldState.error.message}</Text> : null}
             </>
           )}

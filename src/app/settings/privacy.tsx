@@ -25,7 +25,7 @@ export default function Privacy() {
 
   return (
     <Screen background={roles.parent.bg} edges={['top', 'bottom']} refreshing={privacy.isRefetching} onRefresh={privacy.refetch} accent={accent}>
-      <ScreenHeader title="Privacy & data" subtitle="You decide how Nexus uses your children’s information. Changes apply immediately." />
+      <ScreenHeader title="Privacy & data" subtitle="You decide how BrainBox uses your children’s information. Changes apply immediately." />
       {privacy.isPending ? (
         <CardListSkeleton count={2} height={180} />
       ) : privacy.isError ? (
@@ -38,7 +38,7 @@ export default function Privacy() {
             privacy.data.children.map((c) => (
               <Card key={c.studentId} className="gap-1">
                 <Title>{c.firstName}</Title>
-                <SwitchRow label="Learning data" description="Needed to use Nexus. To stop it, request deletion below." value={c.consents.DATA_PROCESSING} onChange={() => {}} disabled accent={accent} />
+                <SwitchRow label="Learning data" description="Needed to use BrainBox. To stop it, request deletion below." value={c.consents.DATA_PROCESSING} onChange={() => {}} disabled accent={accent} />
                 <SwitchRow
                   label="AI weekly reports"
                   description="Lets our AI write a weekly summary from scores and activity."

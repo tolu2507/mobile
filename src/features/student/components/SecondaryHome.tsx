@@ -10,6 +10,7 @@ import { FridayMockCard } from '@/features/mocks/components/FridayMockCard';
 import { greeting } from '@/lib/format';
 import { palette, roles } from '@/theme';
 import type { Quest, StudentHome } from '@/types/api';
+import { HomeRewards } from './HomeRewards';
 import { QuestCard } from './QuestCard';
 
 const theme = roles.student;
@@ -62,6 +63,7 @@ export function SecondaryHome({ home, refreshing, onRefresh }: { home: StudentHo
 
   return (
     <Screen background={theme.bg} header={header} refreshing={refreshing} onRefresh={onRefresh} accent={theme.accent}>
+      <HomeRewards home={home} theme={theme} primary={false} />
       <ExamPrepCard level={home.level} grade={home.gradeName} theme={theme} />
       <FridayMockCard />
 

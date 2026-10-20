@@ -15,6 +15,15 @@ export function useBadges() {
   return useQuery({ queryKey: ['student', 'badges'], queryFn: async () => (await api.get<Badge[]>('/me/student/badges')).data });
 }
 
+/** After the unlock celebration plays, so it never plays twice. */
+export function useMarkStickersSeen() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => (await api.post('/me/student/badges/seen', { ids })).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['student', 'badges'] }),
+  });
+}
+
 export function useStudentWallet() {
   return useQuery({ queryKey: ['student', 'wallet'], queryFn: async () => (await api.get<WalletSummary>('/me/student/wallet')).data });
 }

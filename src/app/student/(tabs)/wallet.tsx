@@ -1,18 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
-import Animated, { ZoomIn } from 'react-native-reanimated';
 
 import { NumberFlow } from '@/components/reacticx/molecules/number-flow';
 import { Body, Caption, Card, CardListSkeleton, Display, EmptyState, ErrorState, GameButton, Label, Screen, Title } from '@/components/ui';
 import { isPrimary, useBadges, useStudentHome, useStudentWallet } from '@/features/student/api';
+import { StickerBook } from '@/features/student/components/StickerBook';
 import { naira } from '@/lib/format';
 import { palette, roles } from '@/theme';
 
 /** Secondary students: tuck-shop wallet. Primary pupils: a sticker book instead of money. */
 export default function WalletTab() {
   const home = useStudentHome();
-  return isPrimary(home.data) ? <StickerBook /> : <StudentWallet />;
+  return isPrimary(home.data) ? <StickerTab /> : <StudentWallet />;
 }
 
 function StudentWallet() {
@@ -34,7 +34,7 @@ function StudentWallet() {
               <Text className="font-display text-[40px] text-sun-400">₦</Text>
               <NumberFlow value={Number(data.balanceKobo) / 100} fontSize={40} color={palette.sun[400]} fontWeight="800" />
             </View>
-            <Text className="font-body text-[13px] text-violet-100">A parent can top up from their Nexus app.</Text>
+            <Text className="font-body text-[13px] text-violet-100">A parent can top up from their BrainBox app.</Text>
           </View>
 
           <Card className="gap-3">
@@ -87,49 +87,14 @@ function StudentWallet() {
   );
 }
 
-const stickerStyle: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
-  FIRST_QUEST: { icon: 'rocket', color: palette.violet[400] },
-  STREAK_3: { icon: 'flame', color: palette.coral[400] },
-  STREAK_7: { icon: 'flame', color: palette.coral[500] },
-  STREAK_30: { icon: 'bonfire', color: palette.coral[700] },
-  XP_500: { icon: 'star', color: palette.sun[400] },
-  XP_2000: { icon: 'school', color: palette.mint[400] },
-  FIRST_LESSON_QUIZ: { icon: 'ribbon', color: palette.sky[400] },
-  PERFECT_SCORE: { icon: 'trophy', color: palette.sun[600] },
-};
-
-function StickerBook() {
+/** Primary pupils: the sticker book is their tab. */
+function StickerTab() {
   const theme = roles.studentPrimary;
-  const { data, isPending, isError, error, refetch, isRefetching } = useBadges();
-  const earned = data?.filter((b) => b.earned).length ?? 0;
+  const { refetch, isRefetching } = useBadges();
   return (
     <Screen background={theme.bg} contentClassName="pb-32" refreshing={isRefetching} onRefresh={refetch} accent={theme.accent}>
       <Display className="text-[30px]">My stickers</Display>
-      <Caption className="text-[15px]">{data ? `${earned} of ${data.length} collected. Finish quests to get more!` : 'Finish quests to collect them all!'}</Caption>
-      {isPending ? (
-        <CardListSkeleton count={2} height={130} />
-      ) : isError ? (
-        <ErrorState error={error} onRetry={refetch} color={theme.accent} />
-      ) : (
-        <View className="flex-row flex-wrap gap-3">
-          {data.map((b, i) => {
-            const st = stickerStyle[b.code] ?? { icon: 'star' as const, color: palette.violet[400] };
-            return (
-              <Animated.View
-                key={b.id}
-                entering={ZoomIn.delay(50 * i).springify()}
-                accessibilityLabel={`${b.name}: ${b.description}${b.earned ? '' : ', not collected yet'}`}
-                style={{ width: '31%', aspectRatio: 0.8, borderRadius: 22, backgroundColor: palette.white, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 6, opacity: b.earned ? 1 : 0.5 }}
-              >
-                <View style={{ width: 56, height: 56, borderRadius: 999, backgroundColor: b.earned ? st.color : palette.ink[200] }} className="items-center justify-center">
-                  <Ionicons name={b.earned ? st.icon : 'lock-closed'} size={28} color="#FFFFFF" />
-                </View>
-                <Text className="text-center font-body-bold text-[13px] text-ink">{b.name}</Text>
-              </Animated.View>
-            );
-          })}
-        </View>
-      )}
+      <StickerBook theme={theme} />
     </Screen>
   );
 }

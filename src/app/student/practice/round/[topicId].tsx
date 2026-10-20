@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { isAxiosError } from 'axios';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,9 @@ import { Body, CardListSkeleton, ChipGroup, EmptyState, GameButton, Pill, Pressa
 import { REPORT_REASONS, usePracticeRound, useReportQuestion, useSubmitRound } from '@/features/practice/api';
 import { NurseryPlayer, NurseryResults } from '@/features/practice/components/NurseryRound';
 import { isPrimary, useStudentHome } from '@/features/student/api';
+import { Coin, StickerFace } from '@/features/student/components/Sticker';
 import { friendlyError } from '@/lib/api';
+import { naira } from '@/lib/format';
 import { fonts, palette, roles, type RoleTheme } from '@/theme';
 import type { PracticeQuestion, PracticeResult } from '@/types/api';
 
@@ -30,12 +33,13 @@ export default function PracticeRoundScreen() {
         <CardListSkeleton count={5} height={60} />
       </Screen>
     );
+  const doneForToday = isAxiosError(round.error) && round.error.response?.status === 429; // free plan: today's questions are used up
   if (round.isError)
     return (
       <Screen background={theme.bg}>
         <EmptyState
-          icon="hourglass-outline"
-          title="No round right now"
+          icon={doneForToday ? 'moon-outline' : 'hourglass-outline'}
+          title={doneForToday ? 'That’s it for today!' : 'No round right now'}
           message={friendlyError(round.error)}
           action={<GameButton label="Back to topics" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.back()} />}
         />
@@ -158,6 +162,21 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
           <Animated.View entering={FadeInDown.delay(250)}>
             <Body className="text-center text-ink-700">{sub}</Body>
           </Animated.View>
+          {rewards.coins?.earned ? (
+            <PopIn delay={xpAt + 300}>
+              <View accessibilityLabel={`${rewards.coins.earned} coins earned`} className="flex-row items-center gap-2 rounded-full px-5 py-3" style={{ backgroundColor: '#2B1D00' }}>
+                <Coin size={22} />
+                <Text className="font-display text-[22px]" style={{ color: palette.sun[400] }}>+</Text>
+                <CountUp value={rewards.coins.earned} delay={xpAt + 450} color={palette.sun[400]} />
+                <Text className="font-display text-[18px]" style={{ color: palette.sun[400] }}>coins</Text>
+              </View>
+            </PopIn>
+          ) : null}
+          {rewards.coins?.sentKobo ? (
+            <PopIn delay={xpAt + 600}>
+              <Text className="text-center font-display text-[20px] text-ink">You just earned {naira(rewards.coins.sentKobo)} for your family!</Text>
+            </PopIn>
+          ) : null}
           {result.xpEarned > 0 ? (
             <PopIn delay={xpAt}>
               <View accessibilityLabel={`${result.xpEarned} XP earned`} className="flex-row items-center gap-2 rounded-full bg-white px-5 py-3">
@@ -187,7 +206,7 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
         ) : null}
         {rewards.newBadges.map((b, i) => (
           <PopIn key={b.code} delay={reviewAt + i * BEAT}>
-            <RewardCard tone="sun" icon={<Ionicons name="ribbon" size={28} color={palette.ink.DEFAULT} />} title={`New badge: ${b.name}`} body={b.description} />
+            <RewardCard tone="sun" icon={<StickerFace icon={b.icon} rarity={b.rarity} size={48} />} title={`New sticker: ${b.name}`} body={b.description} />
           </PopIn>
         ))}
 

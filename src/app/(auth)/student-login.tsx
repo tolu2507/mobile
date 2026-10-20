@@ -40,7 +40,7 @@ export default function StudentLogin() {
 
           <View className="gap-2">
             <Display className="text-[36px] leading-[40px]">Let’s get you in!</Display>
-            <Body className="text-ink-700">Ask your parent for your username and PIN. They set it up in their Nexus app.</Body>
+            <Body className="text-ink-700">Ask your parent for your username and PIN. They set it up in their BrainBox app.</Body>
           </View>
 
 

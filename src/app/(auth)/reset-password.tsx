@@ -33,7 +33,7 @@ export default function ResetPassword() {
     <FormScreen background={palette.paper} footer={<GameButton label={invite ? 'Set password and sign in' : 'Save new password'} loading={reset.isPending} onPress={submit} />}>
       <ScreenHeader
         title={invite ? 'Set your password' : 'Enter your code'}
-        subtitle={invite ? 'Your school sent you a 6-digit code by email or WhatsApp. It’s valid for 7 days.' : `If ${identifier} has a Nexus account, a 6-digit code is on its way. It expires in 30 minutes.`}
+        subtitle={invite ? 'Your school sent you a 6-digit code by email or WhatsApp. It’s valid for 7 days.' : `If ${identifier} has a BrainBox account, a 6-digit code is on its way. It expires in 30 minutes.`}
       />
       {invite ? (
         <FormTextField control={control} name="identifier" label="Email or phone number" placeholder={['ada@example.com', '0803 000 0000']} autoCapitalize="none" keyboardType="email-address" autoComplete="username" />

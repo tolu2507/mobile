@@ -21,7 +21,7 @@ Notifications.setNotificationHandler({
 export async function registerForPush(ask: boolean): Promise<PushStatus> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
-      name: 'Nexus',
+      name: 'BrainBox',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: palette.violet[500],
