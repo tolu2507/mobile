@@ -40,7 +40,7 @@ export default function RewardsScreen() {
             Number(q.data.balanceKobo) >= Number(q.data.rewardKobo) ? (
               <Collect r={q.data} />
             ) : null
-          ) : (
+          ) : !q.data.rewardsEnabled ? null : (
             <GameButton label={q.data.planState === 'TRIAL' ? 'Subscribe to collect' : 'Upgrade to start earning'} color={theme.accent} shadowColor={theme.shadow} onPress={() => router.push('/parent/plan')} />
           )}
           <HowItWorks r={q.data} />
@@ -52,7 +52,9 @@ export default function RewardsScreen() {
 }
 
 function Balance({ r }: { r: ParentRewards }) {
-  const message = r.canCollect
+  const message = !r.rewardsEnabled
+    ? 'Rewards are paused for now. Everything your children earned is safe here.'
+    : r.canCollect
     ? 'Send it as airtime or data to any Nigerian number.'
     : r.earning
       ? 'Your children are earning. Collecting is part of the ₦1,500 plan, and everything they earn stays here until then.'
@@ -171,9 +173,9 @@ function HowItWorks({ r }: { r: ParentRewards }) {
     <Card className="gap-2">
       <Title>How your children earn</Title>
       {[
-        '10 coins for every new question they get right (up to 100 a day)',
-        '200 coins for each Friday mock they finish',
-        '200 to 5,000 coins for each sticker: the harder it is, the more it’s worth',
+        `${r.rates.perCorrect} coins for every new question they get right (up to ${r.rates.practicePerDay.toLocaleString()} a day)`,
+        `${r.rates.perMock.toLocaleString()} coins for each Friday mock they finish`,
+        `${r.rates.stickers.COMMON.toLocaleString()} to ${r.rates.stickers.LEGENDARY.toLocaleString()} coins for each sticker: the harder it is, the more it’s worth`,
         `Every ${r.coinsPerReward.toLocaleString()} coins becomes ${naira(r.rewardKobo)} here, automatically`,
       ].map((t) => (
         <View key={t} className="flex-row gap-2">

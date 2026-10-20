@@ -84,7 +84,7 @@ export type StudentHome = {
   /** limit is null on the trial or paid plan; on the free plan it's 10 a day. */
   practice: { limit: number | null; left: number | null };
   /** Earn while you learn. null on the free plan, where children see nothing about money. */
-  coins: { balance: number; target: number; rewardKobo: string; earnedKobo: string } | null;
+  coins: { balance: number; target: number; rewardKobo: string; earnedKobo: string; perCorrect: number } | null;
 };
 
 export type LeagueStanding = { studentId: string; name: string; weeklyXp: number; isMe: boolean };
@@ -199,6 +199,9 @@ export type ParentRewards = {
   planState: Plan['state'];
   earning: boolean;
   canCollect: boolean;
+  /** Overwatch can pause rewards for everyone; balances are kept. */
+  rewardsEnabled: boolean;
+  rates: { perCorrect: number; practicePerDay: number; perMock: number; stickers: Record<StickerRarity, number> };
   coinsPerReward: number;
   rewardKobo: string;
   airtimeOptionsKobo: string[];

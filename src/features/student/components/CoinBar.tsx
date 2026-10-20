@@ -34,7 +34,7 @@ export function CoinBar({ coins }: { coins: NonNullable<StudentHome['coins']> })
         </Text>
       ) : (
         <Text className="font-body text-[12px]" style={{ color: 'rgba(255,231,163,0.75)' }}>
-          10 coins for every new question you get right, and more for every sticker.
+          {coins.perCorrect} coins for every new question you get right, and more for every sticker.
         </Text>
       )}
     </View>
