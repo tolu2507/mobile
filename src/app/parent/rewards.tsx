@@ -171,7 +171,7 @@ function HowItWorks({ r }: { r: ParentRewards }) {
     <Card className="gap-2">
       <Title>How your children earn</Title>
       {[
-        '10 coins for every new question they get right (up to 400 a day)',
+        '10 coins for every new question they get right (up to 100 a day)',
         '200 coins for each Friday mock they finish',
         '200 to 5,000 coins for each sticker: the harder it is, the more it’s worth',
         `Every ${r.coinsPerReward.toLocaleString()} coins becomes ${naira(r.rewardKobo)} here, automatically`,
