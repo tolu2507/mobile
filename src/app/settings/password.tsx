@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -10,6 +9,7 @@ import { useChangePassword } from '@/features/me/api';
 import { friendlyError } from '@/lib/api';
 import { password } from '@/lib/validation';
 import { palette } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 const schema = z.object({
   currentPassword: z.string().min(1, 'Enter your current password.'),
@@ -23,7 +23,7 @@ export default function Password() {
     change.mutate(v, {
       onSuccess: () => {
         toast.success('Password changed');
-        router.back();
+        goBack();
       },
     }),
   );

@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { PracticeMap, PracticeResult, PracticeRound } from '@/types/api';
+import type { PracticeMap, PracticeResult, PracticeRound, PracticeWorld } from '@/types/api';
+
+/** Every subject the student picked, with progress, for the world map. */
+export function useWorlds() {
+  return useQuery({ queryKey: ['practice', 'map', 'worlds'], queryFn: async () => (await api.get<PracticeWorld[]>('/me/student/practice/worlds')).data });
+}
 
 export function usePracticeMap(subjectId: string) {
   return useQuery({ queryKey: ['practice', 'map', subjectId], queryFn: async () => (await api.get<PracticeMap>(`/me/student/practice/subjects/${subjectId}`)).data });

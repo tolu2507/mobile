@@ -61,6 +61,15 @@ export function useChildWallet(studentId?: string) {
   });
 }
 
+/** The parent's switches for the arena and its quick chat. */
+export function useSetArena(studentId?: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: { arenaAllowed?: boolean; chatAllowed?: boolean }) => (await api.put(`/parent/children/${studentId}/arena`, body)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['parent', 'children'] }),
+  });
+}
+
 export function useSetDailyLimit(studentId?: string) {
   const qc = useQueryClient();
   return useMutation({

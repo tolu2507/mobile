@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -9,6 +9,7 @@ import { usePrivacy, useSetConsent } from '@/features/me/api';
 import { useChildren, useLatestReport } from '@/features/parent/api';
 import { friendlyError } from '@/lib/api';
 import { palette, roles } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.parent;
 const scoreColor = (s: number) => (s >= 70 ? palette.mint[400] : s >= 55 ? palette.sun[400] : palette.amber[500]);
@@ -33,7 +34,7 @@ export default function ChildReport() {
       ) : children.isError ? (
         <ErrorState error={children.error} onRetry={children.refetch} color={theme.accent} />
       ) : !child ? (
-        <EmptyState title="Not found" message="This child isn’t on your account." action={<GameButton label="Back" variant="outline" className="mt-2 self-stretch" onPress={() => router.back()} />} />
+        <EmptyState title="Not found" message="This child isn’t on your account." action={<GameButton label="Back" variant="outline" className="mt-2 self-stretch" onPress={() => goBack('/parent')} />} />
       ) : report.isPending ? (
         <CardListSkeleton count={4} height={110} />
       ) : report.isError ? (

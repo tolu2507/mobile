@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
@@ -12,6 +11,7 @@ import { friendlyError } from '@/lib/api';
 import { email, optionalPhone, required } from '@/lib/validation';
 import { useAuth } from '@/store/auth';
 import { palette } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 const schema = z.object({
   firstName: required('Enter your first name.'),
@@ -33,7 +33,7 @@ export default function Account() {
       {
         onSuccess: () => {
           toast.success('Details saved');
-          router.back();
+          goBack();
         },
       },
     ),

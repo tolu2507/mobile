@@ -45,6 +45,20 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+/** The access token, refreshed first if it has expired or is about to (for connections axios doesn't make, like the arena socket). */
+export async function freshAccessToken(): Promise<string | null> {
+  const token = useAuth.getState().accessToken;
+  if (!token) return null;
+  try {
+    const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    if (exp && exp * 1000 - Date.now() > 60_000) return token;
+  } catch {
+    // Not a token we can read: refresh to be safe.
+  }
+  refreshing ??= refreshAccessToken().finally(() => (refreshing = null));
+  return refreshing;
+}
+
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {

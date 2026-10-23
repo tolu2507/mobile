@@ -15,6 +15,7 @@ import { useNow } from '@/lib/useNow';
 import { fonts, palette, roles } from '@/theme';
 import type { MockPaper } from '@/types/api';
 import { confirm } from '@/lib/confirm';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.student;
 const LETTERS = 'ABCDE';
@@ -134,7 +135,7 @@ function Cbt({ paper }: { paper: MockPaper }) {
 
   const leave = async () => {
     void flush();
-    if (await confirm({ title: 'Leave the mock?', message: 'Your answers are saved, but the clock keeps running. Come back before it runs out.', confirmLabel: 'Leave', cancelLabel: 'Stay', destructive: true })) router.back();
+    if (await confirm({ title: 'Leave the mock?', message: 'Your answers are saved, but the clock keeps running. Come back before it runs out.', confirmLabel: 'Leave', cancelLabel: 'Stay', destructive: true })) goBack('/student');
   };
   // Android back button: confirm, and remind them the clock keeps going.
   useEffect(() => {

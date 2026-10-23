@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { isAxiosError } from 'axios';
 import * as Haptics from 'expo-haptics';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
@@ -14,6 +14,7 @@ import { friendlyError } from '@/lib/api';
 import { initials, naira } from '@/lib/format';
 import { palette, roles } from '@/theme';
 import type { ShopReceipt } from '@/types/api';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.tuckshop;
 const MIN_NAIRA = 50;
@@ -44,9 +45,9 @@ export default function Sell() {
   if (needsPin && p.hasPin === '0') {
     return (
       <Shell>
-        <Header firstName={p.firstName} lastName={p.lastName} detail={p.className} onClose={() => router.back()} />
+        <Header firstName={p.firstName} lastName={p.lastName} detail={p.className} onClose={() => goBack('/tuckshop')} />
         <Banner tone="error" title={`${p.firstName} doesn’t have a PIN yet`} message="A parent can set one in the BrainBox app (Wallet → Change PIN), or the school office can print a new one." />
-        <GameButton label="Back to the counter" variant="outline" onPress={() => router.back()} />
+        <GameButton label="Back to the counter" variant="outline" onPress={() => goBack('/tuckshop')} />
       </Shell>
     );
   }
@@ -73,7 +74,7 @@ export default function Sell() {
 
   return (
     <Shell>
-      <Header firstName={p.firstName} lastName={p.lastName} detail={[p.className, p.shopCode].filter(Boolean).join(' · ')} onClose={() => router.back()} />
+      <Header firstName={p.firstName} lastName={p.lastName} detail={[p.className, p.shopCode].filter(Boolean).join(' · ')} onClose={() => goBack('/tuckshop')} />
       <Caption className="-mt-2">Check this is the child in front of you before you charge.</Caption>
       <View style={{ alignItems: 'center', gap: 2, paddingVertical: 4 }}>
         <Caption>Amount</Caption>
@@ -247,7 +248,7 @@ function PinStep({ firstName, lastName, amountNaira, note, studentId, requestId,
               <GameButton label="Try again" color={theme.accent} shadowColor={theme.shadow} onPress={() => setError(null)} />
             ) : null}
             <GameButton label="Change the amount" variant="white" color={palette.ink.DEFAULT} onPress={onCancel} />
-            <GameButton label="Cancel sale" variant="outline" onPress={() => router.back()} />
+            <GameButton label="Cancel sale" variant="outline" onPress={() => goBack('/tuckshop')} />
           </View>
         ) : (
           <View style={{ gap: 14 }}>
@@ -258,7 +259,7 @@ function PinStep({ firstName, lastName, amountNaira, note, studentId, requestId,
                 Alert.alert('Cancel this sale?', `${firstName} won’t be charged.`, [
                   { text: 'Keep going', style: 'cancel' },
                   { text: 'Change amount', onPress: onCancel },
-                  { text: 'Cancel sale', style: 'destructive', onPress: () => router.back() },
+                  { text: 'Cancel sale', style: 'destructive', onPress: () => goBack('/tuckshop') },
                 ])
               }
               style={{ alignSelf: 'center', padding: 10 }}
@@ -295,7 +296,7 @@ function Done({ receipt, firstName, handBack }: { receipt: ShopReceipt; firstNam
             {firstName} has {naira(receipt.balanceKobo)} left.{handBack ? ' Please hand the phone back.' : ''}
           </Body>
         </View>
-        <GameButton label="Next child" variant="white" color={palette.mint[700]} size="xl" onPress={() => router.back()} />
+        <GameButton label="Next child" variant="white" color={palette.mint[700]} size="xl" onPress={() => goBack('/tuckshop')} />
       </View>
     </SafeAreaView>
   );

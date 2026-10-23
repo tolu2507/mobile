@@ -4,9 +4,9 @@ import { Text, View } from 'react-native';
 
 import { OtpInput } from '@/components/reacticx/base/otp-input';
 import { toast } from '@/components/reacticx/molecules/Toast';
-import { Avatar, Banner, Caption, Card, CardListSkeleton, EmptyState, GameButton, Label, Screen, ScreenHeader, Title } from '@/components/ui';
+import { Avatar, Banner, Caption, Card, CardListSkeleton, EmptyState, GameButton, Label, Screen, ScreenHeader, SwitchRow, Title } from '@/components/ui';
 import { ExamList } from '@/features/exams/components/ExamList';
-import { useChangePin, useChildren } from '@/features/parent/api';
+import { useChangePin, useChildren, useSetArena } from '@/features/parent/api';
 import { ChildProgress } from '@/features/parent/components/ChildProgress';
 import { friendlyError } from '@/lib/api';
 import { initials } from '@/lib/format';
@@ -19,6 +19,7 @@ export default function ChildDetail() {
   const children = useChildren();
   const child = children.data?.find((c) => c.id === id);
   const changePin = useChangePin(id);
+  const setArena = useSetArena(id);
   const [pin, setPin] = useState('');
   const [key, setKey] = useState(0); // remounts the PIN boxes after saving
 
@@ -51,6 +52,29 @@ export default function ChildDetail() {
           <Text selectable className="font-display text-[20px] text-ink">{child.username}</Text>
         </View>
       </Card>
+
+      {child.level !== 'NURSERY' ? (
+        <Card className="gap-1">
+          <Title>Arena</Title>
+          <Caption className="text-[14px]">Quick quiz races against other children on the same questions. Other players only see {child.firstName}’s first name and initial.</Caption>
+          <SwitchRow
+            label="Arena on"
+            description="Ghost Races and private rooms with friends."
+            value={child.arenaAllowed}
+            accent={theme.accent}
+            disabled={setArena.isPending}
+            onChange={(arenaAllowed) => setArena.mutate({ arenaAllowed }, { onError: (e) => toast.error(friendlyError(e)) })}
+          />
+          <SwitchRow
+            label="Quick chat"
+            description="Ready-made phrases only, like “Good game!”. Children can’t type messages."
+            value={child.chatAllowed}
+            accent={theme.accent}
+            disabled={setArena.isPending || !child.arenaAllowed}
+            onChange={(chatAllowed) => setArena.mutate({ chatAllowed }, { onError: (e) => toast.error(friendlyError(e)) })}
+          />
+        </Card>
+      ) : null}
 
       <Card className="gap-3">
         <Title>Reset PIN</Title>

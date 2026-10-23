@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Text, View } from 'react-native';
 import { z } from 'zod';
@@ -15,6 +14,7 @@ import { friendlyError } from '@/lib/api';
 import { required } from '@/lib/validation';
 import { fonts, palette, roles } from '@/theme';
 import type { Child } from '@/types/api';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.parent;
 
@@ -64,7 +64,7 @@ export default function NewChild() {
       onSuccess: (child) => {
         setChildId(child.id);
         toast.success(`${child.firstName} is ready! Username: ${child.username}`);
-        router.back();
+        goBack('/parent');
       },
     }),
   );

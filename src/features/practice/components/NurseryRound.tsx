@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, ZoomIn } from 'react-native-reanimated';
@@ -13,6 +12,7 @@ import { hush, say, useVoice } from '@/lib/speech';
 import { fonts, palette, type RoleTheme } from '@/theme';
 import type { PracticeQuestion, PracticeResult } from '@/types/api';
 import { StickerFace } from '@/features/student/components/Sticker';
+import { goBack } from '@/lib/nav';
 import { parseNurseryLabel, parseNurseryStem, pictureCount, PRAISE, TRY_AGAIN } from '../nursery';
 
 const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)];
@@ -83,7 +83,7 @@ export function NurseryPlayer({ questions, theme, submitting, error, onSubmit }:
           <View className="flex-row items-center gap-3 px-5 pb-4 pt-3">
             <PressableScale
               accessibilityLabel="Stop playing"
-              onPress={() => router.back()}
+              onPress={() => goBack('/student/practice')}
               style={{
                 width: 44,
                 height: 44,
@@ -364,7 +364,7 @@ export function NurseryResults({ result, theme, onNext }: { result: PracticeResu
           <Pulse>
             <GameButton label="Play again" size="xl" color={theme.accent} shadowColor={theme.shadow} onPress={onNext} />
           </Pulse>
-          <GameButton label="All done" variant="outline" onPress={() => router.back()} />
+          <GameButton label="All done" variant="outline" onPress={() => goBack('/student/practice')} />
         </Animated.View>
       </ScrollView>
     </SafeAreaView>

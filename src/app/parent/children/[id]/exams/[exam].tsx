@@ -1,10 +1,11 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import { CardListSkeleton, EmptyState, ErrorState, Screen, ScreenHeader } from '@/components/ui';
 import { useExamCatalog, useMyExams } from '@/features/exams/api';
 import { ExamSetupForm } from '@/features/exams/components/ExamSetupForm';
 import { useChildren } from '@/features/parent/api';
 import { roles } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.parent;
 
@@ -21,5 +22,5 @@ export default function ChildExamSetup() {
   const info = catalog.data.find((e) => e.exam === exam);
   if (!child || !info) return <Screen background={theme.bg}><ScreenHeader title="Exam prep" /><EmptyState title="Not found" message="Go back and choose a child and exam from the list." /></Screen>;
 
-  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{ studentId: child.id }} theme={theme} childName={child.firstName} grade={child.className} onDone={() => router.back()} />;
+  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{ studentId: child.id }} theme={theme} childName={child.firstName} grade={child.className} onDone={() => goBack('/parent')} />;
 }

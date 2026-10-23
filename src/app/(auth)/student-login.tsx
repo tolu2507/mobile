@@ -13,6 +13,7 @@ import { usePinLogin } from '@/features/auth/api';
 import { friendlyError } from '@/lib/api';
 import { required } from '@/lib/validation';
 import { fonts, palette } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 const schema = z.object({
   username: required('Type your username.').toLowerCase(),
@@ -32,7 +33,7 @@ export default function StudentLogin() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Back"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             className="h-11 w-11 items-center justify-center rounded-2xl bg-white"
           >
             <Ionicons name="chevron-back" size={22} color={palette.ink.DEFAULT} />

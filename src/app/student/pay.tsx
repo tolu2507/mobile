@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, ZoomIn } from 'react-native-reanimated';
@@ -16,6 +15,7 @@ import { useNow } from '@/lib/useNow';
 import { palette, roles } from '@/theme';
 import type { PayableSchool, PhoneReceipt } from '@/types/api';
 import { confirm } from '@/lib/confirm';
+import { goBack } from '@/lib/nav';
 
 const theme = roles.student;
 const QUICK = [100, 200, 500, 1000];
@@ -196,7 +196,7 @@ function Paid({ receipt }: { receipt: PhoneReceipt }) {
             You have {naira(receipt.balanceKobo)} left.
           </Caption>
         </View>
-        <GameButton label="Done" variant="white" color={palette.mint[700]} size="xl" onPress={() => router.back()} />
+        <GameButton label="Done" variant="white" color={palette.mint[700]} size="xl" onPress={() => goBack('/student')} />
       </View>
     </SafeAreaView>
   );

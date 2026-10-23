@@ -149,6 +149,8 @@ export type Child = {
   level: EducationLevel;
   className: string;
   schoolName: string | null;
+  arenaAllowed: boolean;
+  chatAllowed: boolean;
 };
 
 export type WeeklyReport = {
@@ -239,7 +241,7 @@ export type ShopSales = { totalKobo: string; count: number; items: ShopSale[] };
 
 export type PracticeSubtopic = { id: string; name: string; level: number; mastery: number; answered: number; bossBeaten: boolean; fresh: number; unlocked: boolean };
 export type PracticeMap = {
-  subject: { id: string; exam: ExamBody; name: string };
+  subject: { id: string; exam: ExamBody; slug: string; name: string };
   yearsAnalysed: number;
   leaves: number;
   conquered: number;
@@ -247,6 +249,8 @@ export type PracticeMap = {
   reviewsDue: number;
   topics: { id: string; name: string; weight: number | null; yearsSeen: number | null; hot: boolean; subtopics: PracticeSubtopic[] }[];
 };
+/** One subject the student picked, as a world on their world map. `ready`: it has questions to play. */
+export type PracticeWorld = { id: string; exam: ExamBody; slug: string; name: string; leaves: number; conquered: number; mastery: number; reviewsDue: number; ready: boolean };
 /** Nursery rounds also carry each answer and its explanation, so the app can respond the moment a child taps. */
 export type PracticeQuestion = Question & { difficulty: number; review: boolean; answerId?: string; explanation?: string };
 export type PracticeRound = { topicId: string; level: number; boss: boolean; nursery: boolean; questions: PracticeQuestion[] };

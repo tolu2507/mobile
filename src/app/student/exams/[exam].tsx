@@ -1,10 +1,11 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import { CardListSkeleton, EmptyState, ErrorState, Screen, ScreenHeader } from '@/components/ui';
 import { useExamCatalog, useMyExams } from '@/features/exams/api';
 import { ExamSetupForm } from '@/features/exams/components/ExamSetupForm';
 import { isPrimary, useStudentHome } from '@/features/student/api';
 import { roles } from '@/theme';
+import { goBack } from '@/lib/nav';
 
 export default function StudentExamSetup() {
   const { exam } = useLocalSearchParams<{ exam: string }>();
@@ -19,5 +20,5 @@ export default function StudentExamSetup() {
   const info = catalog.data.find((e) => e.exam === exam);
   if (!info) return <Screen background={theme.bg}><ScreenHeader title="Exam prep" /><EmptyState title="Exam not found" message="Go back and choose one of the exams listed." /></Screen>;
 
-  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{}} theme={theme} grade={home?.gradeName} onDone={() => router.back()} />;
+  return <ExamSetupForm info={info} current={mine.data.find((c) => c.exam === info.exam)} owner={{}} theme={theme} grade={home?.gradeName} onDone={() => goBack('/student')} />;
 }

@@ -1,7 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { isAxiosError } from 'axios';
 import * as Haptics from 'expo-haptics';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -20,6 +20,7 @@ import { friendlyError } from '@/lib/api';
 import { naira } from '@/lib/format';
 import { fonts, palette, roles, type RoleTheme } from '@/theme';
 import type { PracticeQuestion, PracticeResult } from '@/types/api';
+import { goBack } from '@/lib/nav';
 
 export default function PracticeRoundScreen() {
   const { topicId, name, subject } = useLocalSearchParams<{ topicId: string; name?: string; subject?: string }>();
@@ -41,7 +42,7 @@ export default function PracticeRoundScreen() {
           icon={doneForToday ? 'moon-outline' : 'hourglass-outline'}
           title={doneForToday ? 'That’s it for today!' : 'No round right now'}
           message={friendlyError(round.error)}
-          action={<GameButton label="Back to topics" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => router.back()} />}
+          action={<GameButton label="Back to topics" className="mt-2 self-stretch" color={theme.accent} shadowColor={theme.shadow} onPress={() => goBack('/student/practice')} />}
         />
       </Screen>
     );
@@ -76,7 +77,7 @@ export default function PracticeRoundScreen() {
               <View className="flex-row items-center justify-between">
                 <PressableScale
                   accessibilityLabel="Stop practising"
-                  onPress={() => router.back()}
+                  onPress={() => goBack('/student/practice')}
                   style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Ionicons name="close" size={22} color="#FFFFFF" />
@@ -225,7 +226,7 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
             size="lg"
             onPress={onNext}
           />
-          <GameButton label="Back to topics" variant="outline" onPress={() => router.back()} />
+          <GameButton label="Back to topics" variant="outline" onPress={() => goBack('/student/practice')} />
         </View>
       </ScrollView>
     </SafeAreaView>
