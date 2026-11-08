@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, FadeIn, FadeOut, FadeInDown, interpolateColor, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,6 +11,7 @@ import { MathText } from '@/components/MathText';
 import { PressableScale } from '@/components/ui';
 import { goBack as back } from '@/lib/nav';
 import { playSound } from '@/lib/sounds';
+import { ARENA_BG } from '@/features/worlds/art';
 import { fonts } from '@/theme';
 import { PHRASES, type ChatLine, type Phrase } from './api';
 
@@ -45,6 +47,10 @@ export function ArenaShell({ children, edges = ['top', 'bottom'] }: { children: 
   return (
     <View style={{ flex: 1, backgroundColor: ARENA.bg }}>
       <StatusBar style="light" />
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        <Image source={ARENA_BG} style={StyleSheet.absoluteFill} contentFit="cover" />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: ARENA.bg, opacity: 0.75 }]} />
+      </View>
       <SafeAreaView edges={edges} style={{ flex: 1 }}>
         {children}
       </SafeAreaView>

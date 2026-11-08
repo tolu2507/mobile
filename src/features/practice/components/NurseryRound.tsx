@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, ZoomIn } from 'react-native-reanimated';
@@ -12,6 +13,7 @@ import { hush, say, useVoice } from '@/lib/speech';
 import { fonts, palette, type RoleTheme } from '@/theme';
 import type { PracticeQuestion, PracticeResult } from '@/types/api';
 import { StickerFace } from '@/features/student/components/Sticker';
+import type { Mood } from '@/features/worlds/art';
 import { goBack } from '@/lib/nav';
 import { parseNurseryLabel, parseNurseryStem, pictureCount, PRAISE, TRY_AGAIN } from '../nursery';
 
@@ -302,7 +304,7 @@ function Tile({ label, index, state, theme, onPress }: { label: string; index: n
 }
 
 /** Stars, a cheer read aloud, and straight back into another round. */
-export function NurseryResults({ result, theme, onNext }: { result: PracticeResult; theme: RoleTheme; onNext: () => void }) {
+export function NurseryResults({ result, theme, moods, onNext }: { result: PracticeResult; theme: RoleTheme; moods?: Record<Mood, number>; onNext: () => void }) {
   const total = result.results.length;
   const correct = result.results.filter((r) => r.correct).length;
   const stars = Math.max(1, starsForScore(total ? (correct / total) * 100 : 0));
@@ -322,7 +324,12 @@ export function NurseryResults({ result, theme, onNext }: { result: PracticeResu
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
       <ScrollView contentContainerClassName="gap-5 px-5 pb-10 pt-8">
         <View className="items-center gap-4">
-          <View className="items-center justify-center" style={{ minHeight: 120 }}>
+          <View className="items-center justify-center gap-2" style={{ minHeight: 120 }}>
+            {moods ? (
+              <PopIn delay={200}>
+                <Image accessible={false} source={moods[stars >= 2 || up ? 'cheer' : 'oops']} style={{ width: 150, height: 150 }} contentFit="contain" />
+              </PopIn>
+            ) : null}
             <Stars earned={stars} size={64} />
             {stars >= 2 || up ? <Confetti count={up ? 60 : 40} /> : null}
           </View>

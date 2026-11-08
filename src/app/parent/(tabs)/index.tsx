@@ -78,7 +78,7 @@ function ChildTile({ child, card, loading, freeQuestions }: { child: Child; card
       style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 16, gap: 14 }}
     >
       <View className="flex-row items-center gap-3">
-        <Avatar initials={initials(child.firstName, child.lastName)} size={52} radius={17} />
+        <Avatar initials={initials(child.firstName, child.lastName)} avatar={child.avatar} size={52} radius={17} />
         <View className="flex-1 gap-0.5">
           <Text className="font-display text-[20px] text-ink">{child.firstName}</Text>
           <Caption numberOfLines={1}>

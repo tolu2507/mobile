@@ -29,7 +29,7 @@ export default function Children() {
               onPress={() => router.push({ pathname: '/parent/children/[id]', params: { id: c.id } })}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14 }}
             >
-              <Avatar initials={initials(c.firstName, c.lastName)} size={48} />
+              <Avatar initials={initials(c.firstName, c.lastName)} avatar={c.avatar} size={48} />
               <View className="flex-1">
                 <Label>{c.firstName} {c.lastName}</Label>
                 <Caption>{c.className}{c.schoolName ? ` · ${c.schoolName}` : ''} · @{c.username}</Caption>

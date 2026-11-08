@@ -5,6 +5,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Pulse } from '@/components/game';
 import { PressableScale } from '@/components/ui';
+import { worldFor } from '@/features/worlds/worlds';
 import { say } from '@/lib/speech';
 import { palette, type RoleTheme } from '@/theme';
 import type { PracticeMap, PracticeSubtopic } from '@/types/api';
@@ -24,7 +25,7 @@ export function NurseryMap({ m, theme }: { m: PracticeMap; theme: RoleTheme }) {
       {games.map((s, i) => (
         <Animated.View key={s.id} entering={FadeInDown.delay(Math.min(i, 8) * 60)} style={{ width: '48%' }}>
           <Pulse active={s.id === next} scale={1.04}>
-            <Game s={s} theme={theme} subjectName={m.subject.name} playable={playable(s)} />
+            <Game s={s} theme={theme} subjectName={m.subject.name} world={worldFor(m.subject.slug).key} playable={playable(s)} />
           </Pulse>
         </Animated.View>
       ))}
@@ -32,12 +33,12 @@ export function NurseryMap({ m, theme }: { m: PracticeMap; theme: RoleTheme }) {
   );
 }
 
-function Game({ s, theme, subjectName, playable }: { s: PracticeSubtopic; theme: RoleTheme; subjectName: string; playable: boolean }) {
+function Game({ s, theme, subjectName, world, playable }: { s: PracticeSubtopic; theme: RoleTheme; subjectName: string; world: string; playable: boolean }) {
   // Levels 1–5 are four stars to earn, then the crown for beating the boss round.
   const stars = s.bossBeaten ? 4 : s.level - 1;
   const open = () => {
     say(s.name);
-    router.push({ pathname: '/student/practice/round/[topicId]', params: { topicId: s.id, name: s.name, subject: subjectName } });
+    router.push({ pathname: '/student/practice/round/[topicId]', params: { topicId: s.id, name: s.name, subject: subjectName, world } });
   };
   return (
     <PressableScale

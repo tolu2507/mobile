@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -10,6 +11,7 @@ import { usePracticeMap } from '@/features/practice/api';
 import { NurseryMap } from '@/features/practice/components/NurseryMap';
 import { VoiceToggle } from '@/features/practice/components/NurseryRound';
 import { isPrimary, useStudentHome } from '@/features/student/api';
+import { WORLD_ART } from '@/features/worlds/art';
 import { WorldIsland } from '@/features/worlds/WorldIsland';
 import { worldFor, type World } from '@/features/worlds/worlds';
 import { palette, roles } from '@/theme';
@@ -50,7 +52,7 @@ export default function PracticeMapScreen() {
   const nextId = m.topics.flatMap((t) => t.subtopics).find((s) => playable(s) && !s.bossBeaten)?.id;
 
   return (
-    <Screen background={world.bg} header={<Header m={m} world={world} />} refreshing={map.isRefetching} onRefresh={() => void map.refetch()} accent={world.ledge} edges={['bottom']}>
+    <Screen background={world.bg} backdrop={WORLD_ART[world.key].bg} header={<Header m={m} world={world} />} refreshing={map.isRefetching} onRefresh={() => void map.refetch()} accent={world.ledge} edges={['bottom']}>
       {!m.topics.length ? (
         <EmptyState
           icon="construct-outline"
@@ -113,7 +115,8 @@ function Header({ m, world }: { m: PracticeMap; world: World }) {
                 {m.subject.name}
               </Text>
             </View>
-            {m.subject.exam === 'NURSERY' ? <VoiceToggle /> : <WorldIsland world={{ ...world, sea: 'rgba(255,255,255,0.35)' }} width={84} />}
+            <WorldIsland world={world} width={84} />
+            {m.subject.exam === 'NURSERY' ? <VoiceToggle /> : null}
           </View>
           {m.subject.exam !== 'NURSERY' && m.leaves ? (
             <PressableScale
@@ -193,7 +196,7 @@ function Stop({ s, offset, world, next, subjectName }: { s: PracticeSubtopic; of
       ) : !s.unlocked ? (
         <Ionicons name="lock-closed" size={22} color={glyph} />
       ) : s.level === 5 ? (
-        <MaterialCommunityIcons name="sword-cross" size={26} color={glyph} />
+        <Image source={WORLD_ART[world.key].boss} style={{ width: NODE + 8, height: NODE + 8, marginTop: -10 }} contentFit="contain" />
       ) : (
         <Text className="font-display text-[24px]" style={{ color: glyph }}>
           {s.level}
@@ -208,7 +211,7 @@ function Stop({ s, offset, world, next, subjectName }: { s: PracticeSubtopic; of
       accessibilityRole="button"
       accessibilityState={{ disabled: !canPlay }}
       accessibilityLabel={`${s.name}. ${status}.${detail ? ` ${detail}.` : ''}`}
-      onPress={() => router.push({ pathname: '/student/practice/round/[topicId]', params: { topicId: s.id, name: s.name, subject: subjectName } })}
+      onPress={() => router.push({ pathname: '/student/practice/round/[topicId]', params: { topicId: s.id, name: s.name, subject: subjectName, world: world.key } })}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginLeft: offset }}
     >
       {next ? (

@@ -7,6 +7,7 @@ import { PressableScale } from '@/components/ui';
 import { useArenaHub } from '@/features/arena/api';
 import { ARENA, ArenaButton, ArenaShell, Trophies } from '@/features/arena/components';
 import { useExamCatalog, useMyExams } from '@/features/exams/api';
+import { WorldIsland } from '@/features/worlds/WorldIsland';
 import { worldFor } from '@/features/worlds/worlds';
 import { friendlyError } from '@/lib/api';
 import { fonts } from '@/theme';
@@ -127,13 +128,7 @@ function SubjectRow({ id, slug, name, index }: { id: string; slug: string; name:
         accessibilityLabel={`${name} arena, ${world.name}`}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: ARENA.raised, borderRadius: 20, padding: 12, borderBottomWidth: 5, borderBottomColor: ARENA.ledge, minHeight: 72 }}
       >
-        <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: world.land, borderBottomWidth: 4, borderBottomColor: world.ledge, alignItems: 'center', justifyContent: 'center' }}>
-          {'text' in world.glyph ? (
-            <Text style={{ fontFamily: fonts.display, fontSize: 17, color: world.ink }}>{world.glyph.text}</Text>
-          ) : (
-            <MaterialCommunityIcons name={world.glyph.icon} size={26} color={world.ink} />
-          )}
-        </View>
+        <WorldIsland world={world} width={52} bob={false} />
         <View style={{ flex: 1 }}>
           <Text numberOfLines={2} style={{ fontFamily: fonts.bodyExtrabold, fontSize: 16, color: ARENA.text }}>
             {name}

@@ -30,7 +30,7 @@ export default function ChildDetail() {
     <Screen background={theme.bg} edges={['top', 'bottom']}>
       <ScreenHeader title={`${child.firstName} ${child.lastName}`} />
       <Card className="flex-row items-center gap-3">
-        <Avatar initials={initials(child.firstName, child.lastName)} size={56} radius={18} />
+        <Avatar initials={initials(child.firstName, child.lastName)} avatar={child.avatar} size={56} radius={18} />
         <View className="flex-1 gap-0.5">
           <Label>{child.className}</Label>
           <Caption>{child.schoolName ?? 'Learning independently'}</Caption>

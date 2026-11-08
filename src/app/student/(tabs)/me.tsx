@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { ProfileScreen } from '@/components/ProfileScreen';
@@ -19,7 +20,7 @@ export default function StudentMe() {
     : [];
 
   return (
-    <ProfileScreen theme={theme} floatingTabBar={primary} extraRows={primary ? [] : [{ icon: 'ribbon-outline', label: 'My stickers', href: '/student/stickers' }]}>
+    <ProfileScreen theme={theme} floatingTabBar={primary} avatar={data?.avatar} onAvatarPress={() => router.push('/student/avatar')} extraRows={primary ? [] : [{ icon: 'ribbon-outline', label: 'My stickers', href: '/student/stickers' }]}>
       <View className="flex-row gap-3">
         {stats.map((s) => (
           <View key={s.label} accessibilityLabel={`${s.label}: ${s.value}`} className="flex-1 items-center gap-1 rounded-[20px] bg-white py-4">

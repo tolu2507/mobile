@@ -1,6 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { isAxiosError } from 'axios';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -15,15 +16,18 @@ import { Body, CardListSkeleton, ChipGroup, EmptyState, GameButton, Pill, Pressa
 import { REPORT_REASONS, usePracticeRound, useReportQuestion, useSubmitRound } from '@/features/practice/api';
 import { NurseryPlayer, NurseryResults } from '@/features/practice/components/NurseryRound';
 import { isPrimary, useStudentHome } from '@/features/student/api';
+import { WORLD_ART, type Mood } from '@/features/worlds/art';
 import { Coin, StickerFace } from '@/features/student/components/Sticker';
 import { friendlyError } from '@/lib/api';
 import { naira } from '@/lib/format';
 import { fonts, palette, roles, type RoleTheme } from '@/theme';
-import type { PracticeQuestion, PracticeResult } from '@/types/api';
+import type { PracticeQuestion, PracticeResult, QuestIcon } from '@/types/api';
 import { goBack } from '@/lib/nav';
 
 export default function PracticeRoundScreen() {
-  const { topicId, name, subject } = useLocalSearchParams<{ topicId: string; name?: string; subject?: string }>();
+  const { topicId, name, subject, world: worldParam } = useLocalSearchParams<{ topicId: string; name?: string; subject?: string; world?: string }>();
+  // Which world the round belongs to, for its boss and mascot art (missing when opened from elsewhere).
+  const art = worldParam && worldParam in WORLD_ART ? WORLD_ART[worldParam as QuestIcon] : undefined;
   const theme = isPrimary(useStudentHome().data) ? roles.studentPrimary : roles.student;
   const round = usePracticeRound(topicId);
   const submit = useSubmitRound(topicId);
@@ -51,7 +55,7 @@ export default function PracticeRoundScreen() {
       submit.reset();
       void round.refetch();
     };
-    return round.data.nursery ? <NurseryResults result={submit.data} theme={theme} onNext={next} /> : <Results result={submit.data} questions={round.data.questions} theme={theme} onNext={next} />;
+    return round.data.nursery ? <NurseryResults result={submit.data} theme={theme} moods={art?.moods} onNext={next} /> : <Results result={submit.data} questions={round.data.questions} theme={theme} moods={art?.moods} onNext={next} />;
   }
   if (round.data.nursery) {
     return <NurseryPlayer key={round.dataUpdatedAt} questions={round.data.questions} theme={theme} submitting={submit.isPending} error={submit.isError ? friendlyError(submit.error) : null} onSubmit={(answers) => submit.mutate(answers)} />;
@@ -88,9 +92,12 @@ export default function PracticeRoundScreen() {
                 </View>
               </View>
               <QuizProgress {...pos} ids={questions.map((q) => q.id)} />
-              <View>
-                {subject ? <Text className="font-body-semibold text-[13px] text-white/80">{subject}</Text> : null}
-                <Text className="font-display text-[22px] leading-[26px] text-white">{name ?? 'Practice'}</Text>
+              <View className="flex-row items-center gap-3">
+                <View className="flex-1">
+                  {subject ? <Text className="font-body-semibold text-[13px] text-white/80">{subject}</Text> : null}
+                  <Text className="font-display text-[22px] leading-[26px] text-white">{name ?? 'Practice'}</Text>
+                </View>
+                {boss && art ? <Image accessible={false} source={art.boss} style={{ width: 72, height: 72 }} contentFit="contain" /> : null}
               </View>
             </View>
           </SafeAreaView>
@@ -102,7 +109,7 @@ export default function PracticeRoundScreen() {
 
 const BEAT = 450;
 
-function Results({ result, questions, theme, onNext }: { result: PracticeResult; questions: PracticeQuestion[]; theme: RoleTheme; onNext: () => void }) {
+function Results({ result, questions, theme, moods, onNext }: { result: PracticeResult; questions: PracticeQuestion[]; theme: RoleTheme; moods?: Record<Mood, number>; onNext: () => void }) {
   const percent = Math.round(result.score * 100);
   const up = result.levelAfter > result.levelBefore;
   const down = result.levelAfter < result.levelBefore;
@@ -132,6 +139,8 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
             ? `You got ${result.correct} of ${result.counted} right.`
             : `You got ${result.correct} of ${result.counted}. Get 8 of 10 to move up a level.`;
 
+  const mood: Mood = up || result.bossBeaten ? 'cheer' : !result.counted ? 'think' : percent >= 60 ? 'cheer' : 'oops';
+
   const xpAt = 1300;
   const streakAt = rewards.streak.extended ? xpAt + BEAT : null;
   const levelAt = xpLevelUp ? (streakAt ?? xpAt) + BEAT * 1.5 : null;
@@ -145,7 +154,7 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
       <ScrollView contentContainerClassName="gap-5 px-5 pb-10 pt-6">
         <View className="items-center gap-4">
-          <View className="items-center justify-center" style={{ minHeight: 148 }}>
+          <View className="flex-row items-end justify-center gap-1" style={{ minHeight: 148 }}>
             {result.bossBeaten ? (
               <View className="h-[132px] w-[132px] items-center justify-center rounded-full" style={{ backgroundColor: palette.sun[400] }}>
                 <MaterialCommunityIcons name="crown" size={72} color={palette.ink.DEFAULT} />
@@ -153,6 +162,11 @@ function Results({ result, questions, theme, onNext }: { result: PracticeResult;
             ) : (
               <ScoreRing percent={percent} color={percent >= 80 ? palette.mint[400] : theme.accent} />
             )}
+            {moods ? (
+              <PopIn delay={300}>
+                <Image accessible={false} source={moods[mood]} style={{ width: 104, height: 104 }} contentFit="contain" />
+              </PopIn>
+            ) : null}
             {up || result.bossBeaten ? <Confetti key="win" count={result.bossBeaten ? 60 : 40} /> : null}
           </View>
           <Animated.View entering={FadeInDown.delay(150).springify()}>

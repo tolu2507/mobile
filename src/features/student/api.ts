@@ -19,6 +19,18 @@ export function useStickerStats(badgeId: string) {
   return useQuery({ queryKey: ['student', 'badges', badgeId, 'stats'], queryFn: async () => (await api.get<StickerStats>(`/me/student/badges/${badgeId}/stats`)).data });
 }
 
+/** Pick a cartoon avatar, or null for initials. Shown on the child's profile, in leagues and to their parents. */
+export function useSetAvatar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (avatar: string | null) => (await api.put<{ avatar: string | null }>('/me/student/avatar', { avatar })).data,
+    onSuccess: ({ avatar }) => {
+      qc.setQueryData<StudentHome>(['student', 'home'], (h) => (h ? { ...h, avatar } : h));
+      void qc.invalidateQueries({ queryKey: ['student', 'league'] });
+    },
+  });
+}
+
 /** After the unlock celebration plays, so it never plays twice. */
 export function useMarkStickersSeen() {
   const qc = useQueryClient();

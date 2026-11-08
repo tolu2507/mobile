@@ -73,6 +73,8 @@ export type League = { tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND'; rank: num
 
 export type StudentHome = {
   firstName: string;
+  /** Picked cartoon avatar key (see features/student/avatars), or null for initials. */
+  avatar: string | null;
   level: EducationLevel;
   gradeName: string | null;
   xp: { level: number; title: string; current: number; next: number; levelStart: number };
@@ -87,7 +89,7 @@ export type StudentHome = {
   coins: { balance: number; target: number; rewardKobo: string; earnedKobo: string; perCorrect: number } | null;
 };
 
-export type LeagueStanding = { studentId: string; name: string; weeklyXp: number; isMe: boolean };
+export type LeagueStanding = { studentId: string; name: string; avatar: string | null; weeklyXp: number; isMe: boolean };
 export type LeagueView = { league: League | null; standings: LeagueStanding[] };
 
 export type Badge = {
@@ -146,6 +148,7 @@ export type Child = {
   firstName: string;
   lastName: string;
   username: string | null;
+  avatar: string | null;
   level: EducationLevel;
   className: string;
   schoolName: string | null;

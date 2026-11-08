@@ -1,10 +1,13 @@
+import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 type Props = {
   children: ReactNode;
   background: string;
+  /** Optional picture behind the content, washed with `background` so text on it stays readable. */
+  backdrop?: number;
   /** Rendered edge-to-edge above the scroll content (e.g. a coloured hero). */
   header?: ReactNode;
   scroll?: boolean;
@@ -19,10 +22,16 @@ type Props = {
  * Base layout for every mobile screen: safe areas, background colour,
  * pull-to-refresh, and consistent 20px side gutters.
  */
-export function Screen({ children, background, header, scroll = true, refreshing = false, onRefresh, accent, edges = ['top'], contentClassName = '' }: Props) {
+export function Screen({ children, background, backdrop, header, scroll = true, refreshing = false, onRefresh, accent, edges = ['top'], contentClassName = '' }: Props) {
   const body = <View className={`gap-4 px-5 pb-8 pt-5 ${contentClassName}`}>{children}</View>;
   return (
     <SafeAreaView edges={header ? [] : edges} style={{ flex: 1, backgroundColor: background }}>
+      {backdrop ? (
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <Image source={backdrop} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: background, opacity: 0.8 }]} />
+        </View>
+      ) : null}
       {scroll ? (
         <ScrollView
           contentInsetAdjustmentBehavior="never"

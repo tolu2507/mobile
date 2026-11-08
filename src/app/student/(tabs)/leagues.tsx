@@ -52,7 +52,7 @@ export default function Leagues() {
                   >
                     <Text className="font-display text-[16px] text-ink">{rank}</Text>
                   </Animated.View>
-                  <Avatar initials={s.isMe ? 'ME' : s.name.replace(/[^A-Za-z ]/g, '').split(' ').map((w) => w[0]).join('').slice(0, 2)} size={40} radius={14} />
+                  <Avatar initials={s.isMe ? 'ME' : s.name.replace(/[^A-Za-z ]/g, '').split(' ').map((w) => w[0]).join('').slice(0, 2)} avatar={s.avatar} size={40} radius={14} />
                   <Label className="flex-1">{s.name}</Label>
                   <View className="flex-row items-center gap-1">
                     <Ionicons name="flash" size={16} color={theme.accent} />

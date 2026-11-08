@@ -19,7 +19,22 @@ const roleNames: Record<AppRole, { label: string; icon: keyof typeof Ionicons.gl
 export type ProfileRow = { icon: keyof typeof Ionicons.glyphMap; label: string; href?: Href; onPress?: () => void };
 
 /** Shared "Me" page: identity, role switcher (e.g. a parent who also runs a tuck shop), settings and sign out. */
-export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar = false }: { theme: RoleTheme; extraRows?: ProfileRow[]; children?: React.ReactNode; floatingTabBar?: boolean }) {
+export function ProfileScreen({
+  theme,
+  extraRows = [],
+  children,
+  floatingTabBar = false,
+  avatar,
+  onAvatarPress,
+}: {
+  theme: RoleTheme;
+  extraRows?: ProfileRow[];
+  children?: React.ReactNode;
+  floatingTabBar?: boolean;
+  /** A student's picked avatar; with `onAvatarPress` the picture becomes a button to change it. */
+  avatar?: string | null;
+  onAvatarPress?: () => void;
+}) {
   const { user, activeRole, switchRole, signOut } = useAuth();
   const available = mobileRoles(user?.memberships);
   const school = user?.memberships.find((m) => m.schoolName)?.schoolName;
@@ -48,7 +63,16 @@ export function ProfileScreen({ theme, extraRows = [], children, floatingTabBar 
   return (
     <Screen background={theme.bg} contentClassName={floatingTabBar ? 'pb-32' : ''}>
       <View className="items-center gap-2 pt-4">
-        <Avatar initials={initials(user?.firstName ?? '?', user?.lastName)} size={84} radius={28} />
+        {onAvatarPress ? (
+          <PressableScale accessibilityRole="button" accessibilityLabel={avatar ? 'Change your avatar' : 'Pick an avatar'} onPress={onAvatarPress}>
+            <Avatar initials={initials(user?.firstName ?? '?', user?.lastName)} avatar={avatar} size={96} radius={32} />
+            <View style={{ position: 'absolute', right: -4, bottom: -4, width: 34, height: 34, borderRadius: 17, backgroundColor: theme.accent, borderWidth: 3, borderColor: palette.white, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="pencil" size={16} color={palette.white} />
+            </View>
+          </PressableScale>
+        ) : (
+          <Avatar initials={initials(user?.firstName ?? '?', user?.lastName)} size={84} radius={28} />
+        )}
         <Display className="text-center text-[28px]">
           {user?.firstName} {user?.lastName}
         </Display>
