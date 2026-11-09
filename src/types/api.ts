@@ -4,7 +4,7 @@
  */
 
 export type Role = 'PLATFORM_ADMIN' | 'SCHOOL_OWNER' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'TUTOR' | 'TUCK_SHOP';
-export type EducationLevel = 'NURSERY' | 'PRIMARY' | 'JUNIOR_SECONDARY' | 'SENIOR_SECONDARY';
+export type EducationLevel = 'NURSERY' | 'PRIMARY' | 'JUNIOR_SECONDARY' | 'SENIOR_SECONDARY' | 'TERTIARY';
 export type Kobo = string;
 
 export type Membership = { id: string; role: Role; schoolId: string | null; schoolName: string | null };
@@ -17,6 +17,8 @@ export type SessionUser = {
   phone: string | null;
   username: string | null;
   photoUrl: string | null;
+  /** Students only. TERTIARY = a university student: the app sends them to /uni. */
+  studentLevel?: EducationLevel | null;
   memberships: Membership[];
 };
 
@@ -123,7 +125,7 @@ export type PlayableQuiz = {
 
 // ── Exam prep ─────────────────────────────────────────────
 
-export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE' | 'PRIMARY' | 'NURSERY';
+export type ExamBody = 'JAMB' | 'WAEC' | 'NECO' | 'BECE' | 'COMMON_ENTRANCE' | 'PRIMARY' | 'NURSERY' | 'UNIVERSITY';
 export type ExamSubject = { id: string; slug: string; name: string; compulsory: boolean };
 
 /** One exam from GET /exams: its subjects and the rules for choosing them. */

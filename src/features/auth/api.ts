@@ -9,7 +9,7 @@ const post = <T,>(url: string) => async (body: T) => (await api.post<Session>(ur
 export function useRegister() {
   const signIn = useAuth((s) => s.signIn);
   return useMutation({
-    mutationFn: post<{ firstName: string; lastName: string; email: string; phone?: string; password: string; role: 'PARENT' }>('/auth/register'),
+    mutationFn: post<{ firstName: string; lastName: string; email: string; phone?: string; password: string; role: 'PARENT' | 'UNI_STUDENT' }>('/auth/register'),
     onSuccess: signIn,
   });
 }

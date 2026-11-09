@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
@@ -9,9 +9,8 @@ import { Banner, Body, FormScreen, GameButton, ScreenHeader } from '@/components
 import { useRegister } from '@/features/auth/api';
 import { friendlyError } from '@/lib/api';
 import { email, optionalPhone, password, required } from '@/lib/validation';
+import { UNI } from '@/features/uni/components/classroom-theme';
 import { roles } from '@/theme';
-
-const theme = roles.parent;
 
 const schema = z.object({
   firstName: required('Enter your first name.'),
@@ -22,19 +21,25 @@ const schema = z.object({
 });
 
 export default function Signup() {
+  const { role } = useLocalSearchParams<{ role?: string }>();
+  const uni = role === 'UNI';
+  const theme = uni ? UNI : roles.parent;
   const register = useRegister();
   const { control, handleSubmit, setFocus } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { firstName: '', lastName: '', email: '', phone: '', password: '' },
   });
-  const submit = handleSubmit(({ phone, ...v }) => register.mutate({ ...v, phone: phone || undefined, role: 'PARENT' }, { onSuccess: () => router.replace('/') }));
+  const submit = handleSubmit(({ phone, ...v }) => register.mutate({ ...v, phone: phone || undefined, role: uni ? 'UNI_STUDENT' : 'PARENT' }, { onSuccess: () => router.replace('/') }));
 
   return (
     <FormScreen
       background={theme.bg}
       footer={<GameButton label="Create account" color={theme.accent} shadowColor={theme.shadow} onPress={submit} loading={register.isPending} />}
     >
-      <ScreenHeader title="Create your account" subtitle="Add all your children, follow their exam prep and get a progress report every week." />
+      <ScreenHeader
+        title={uni ? 'Join your class' : 'Create your account'}
+        subtitle={uni ? 'Your courses taught one idea at a time, plus practice questions set the way your lecturers set them.' : 'Add all your children, follow their exam prep and get a progress report every week.'}
+      />
       <View className="flex-row gap-3">
         <View className="flex-1">
           <FormTextField control={control} name="firstName" label="First name" autoComplete="given-name" returnKeyType="next" onSubmitEditing={() => setFocus('lastName')} accent={theme.accent} />
@@ -48,7 +53,7 @@ export default function Signup() {
       <FormTextField control={control} name="password" label="Password" secure autoComplete="new-password" textContentType="newPassword" hint="At least 8 characters." returnKeyType="go" onSubmitEditing={submit} accent={theme.accent} />
       {register.isError ? <Banner tone="error" message={friendlyError(register.error)} /> : null}
       <Body className="text-center text-[13px] text-ink-500">
-        By continuing you agree to the BrainBox terms and privacy policy. We never share your child’s data with advertisers.
+        By continuing you agree to the BrainBox terms and privacy policy. {uni ? 'We never share your data with advertisers.' : 'We never share your child’s data with advertisers.'}
       </Body>
     </FormScreen>
   );
