@@ -83,7 +83,7 @@ export default function PracticeMapScreen() {
               {t.subtopics.map((s, j) => (
                 <View key={s.id}>
                   {j > 0 ? <Trail from={WIND[(j - 1) % WIND.length]} to={WIND[j % WIND.length]} color={s.unlocked ? world.land : world.locked} /> : null}
-                  <Stop s={s} offset={WIND[j % WIND.length]} world={world} next={s.id === nextId} subjectName={m.subject.name} />
+                  <Stop s={s} offset={WIND[j % WIND.length]} world={world} next={s.id === nextId} subjectName={m.subject.name} repeats={m.subject.exam === 'PRIMARY'} />
                 </View>
               ))}
             </View>
@@ -167,10 +167,10 @@ function Trail({ from, to, color }: { from: number; to: number; color: string })
 }
 
 /** One stop on the path: locked, in progress (level 1–5), the boss, or conquered. */
-function Stop({ s, offset, world, next, subjectName }: { s: PracticeSubtopic; offset: number; world: World; next: boolean; subjectName: string }) {
+function Stop({ s, offset, world, next, subjectName, repeats }: { s: PracticeSubtopic; offset: number; world: World; next: boolean; subjectName: string; repeats: boolean }) {
   const canPlay = playable(s);
   const status = !s.unlocked ? 'Finish level 1 of the stop above to unlock' : s.bossBeaten ? 'Conquered' : s.level === 5 ? 'Boss round next' : `Level ${s.level} of 5`;
-  const detail = !s.unlocked ? null : s.fresh ? `${s.fresh} new ${s.fresh === 1 ? 'question' : 'questions'}` : s.answered ? 'Reviews only for now' : 'Questions coming soon';
+  const detail = !s.unlocked ? null : s.fresh ? `${s.fresh} new ${s.fresh === 1 ? 'question' : 'questions'}` : s.answered ? (repeats ? 'Play again to keep climbing' : 'Reviews only for now') : 'Questions coming soon';
 
   const fill = s.bossBeaten ? palette.sun[400] : s.unlocked ? (next ? '#FFFFFF' : world.land) : world.locked;
   const ledge = s.bossBeaten ? palette.sun[600] : s.unlocked ? world.ledge : world.locked;
