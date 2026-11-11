@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, type ReactNode } from 'react';
+import type { Href } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, FadeIn, FadeOut, FadeInDown, interpolateColor, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +19,7 @@ import { PHRASES, type ChatLine, type Phrase } from './api';
 /** The arena's night-time look: cyan is you, orange is the other player. */
 /** Back, or to the Arena tab when there's nothing to go back to (a reloaded page on web, a link). */
 export const goBack = () => back('/student/arena');
+export const makeGoBack = (path: Href) => () => back(path);
 
 export const ARENA = {
   bg: '#14122E',
