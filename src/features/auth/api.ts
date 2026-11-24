@@ -30,5 +30,5 @@ export function useForgotPassword() {
 
 export function useResetPassword() {
   const signIn = useAuth((s) => s.signIn);
-  return useMutation({ mutationFn: post<{ identifier: string; code: string; password: string }>('/auth/reset-password'), onSuccess: signIn });
+  return useMutation({ mutationFn: post<{ identifier: string; code?: string; password: string }>('/auth/reset-password'), onSuccess: signIn });
 }

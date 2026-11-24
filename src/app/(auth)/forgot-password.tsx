@@ -5,34 +5,44 @@ import { z } from 'zod';
 
 import { FormTextField } from '@/components/form';
 import { Banner, FormScreen, GameButton, ScreenHeader } from '@/components/ui';
-import { useForgotPassword } from '@/features/auth/api';
+import { /* useForgotPassword, */ useResetPassword } from '@/features/auth/api';
 import { friendlyError } from '@/lib/api';
-import { required } from '@/lib/validation';
+import { email, password } from '@/lib/validation';
 import { palette } from '@/theme';
 
-const schema = z.object({ identifier: required('Enter your email or phone number.').toLowerCase() });
+// TEMP (until Resend is connected): reset straight away with email + new password, no emailed code.
+// The old code flow is commented out below — restore it once email works.
+const schema = z.object({
+  identifier: email('Enter the email on your account.'),
+  password: password(),
+});
 
 export default function ForgotPassword() {
-  const forgot = useForgotPassword();
-  const { control, handleSubmit } = useForm({ resolver: zodResolver(schema), defaultValues: { identifier: '' } });
-  const submit = handleSubmit(({ identifier }) =>
-    forgot.mutate(identifier, { onSuccess: () => router.push({ pathname: '/reset-password', params: { identifier } }) }),
-  );
+  const reset = useResetPassword();
+  const { control, handleSubmit } = useForm({ resolver: zodResolver(schema), defaultValues: { identifier: '', password: '' } });
+  const submit = handleSubmit((v) => reset.mutate(v, { onSuccess: () => router.replace('/') }));
+
+  // --- Code flow: re-enable once Resend is connected ---
+  // const forgot = useForgotPassword();
+  // const submit = handleSubmit(({ identifier }) =>
+  //   forgot.mutate(identifier, { onSuccess: () => router.push({ pathname: '/reset-password', params: { identifier } }) }),
+  // );
 
   return (
-    <FormScreen background={palette.paper} footer={<GameButton label="Send me a code" loading={forgot.isPending} onPress={submit} />}>
-      <ScreenHeader title="Reset your password" subtitle="We’ll send a 6-digit code to your email or phone. Students: ask a parent to reset your PIN." />
+    <FormScreen background={palette.paper} footer={<GameButton label="Save password and sign in" loading={reset.isPending} onPress={submit} />}>
+      <ScreenHeader title="Reset your password" subtitle="Enter the email on your account and choose a new password. Students: ask a parent to reset your PIN." />
       <FormTextField
         control={control}
         name="identifier"
-        label="Email or phone number"
-        placeholder={['ada@example.com', '0803 000 0000']}
+        label="Email"
+        placeholder={['ada@example.com']}
         autoCapitalize="none"
         keyboardType="email-address"
-        returnKeyType="send"
-        onSubmitEditing={submit}
+        autoComplete="username"
+        returnKeyType="next"
       />
-      {forgot.isError ? <Banner tone="error" message={friendlyError(forgot.error)} /> : null}
+      <FormTextField control={control} name="password" label="New password" secure autoComplete="new-password" hint="At least 8 characters." returnKeyType="go" onSubmitEditing={submit} />
+      {reset.isError ? <Banner tone="error" message={friendlyError(reset.error)} /> : null}
     </FormScreen>
   );
 }
